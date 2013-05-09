@@ -1,11 +1,3 @@
-minispade.register('application/Application.js', function() {
-window.App = Ember.Application.create();
-minispade.require('controllers/YoutubeController.js');
-minispade.require('views/YoutubeView.js');
-
-});
-
-minispade.register('controllers/YoutubeController.js', function() {
 App.YoutubeController = Ember.Controller.extend({
 
   //youtube domain
@@ -154,48 +146,5 @@ App.YoutubeController = Ember.Controller.extend({
     if (!url) { return }
     this.get('ytEl').loadVideoById(url.split("?v=")[1]); 
   },
-
-});
-
-});
-
-minispade.register('views/ApplicationView.js', function() {
-
-});
-
-minispade.register('views/YoutubeView.js', function() {
-App.YoutubeView = Ember.View.extend({
-
-  //height and width of the embedded youtube swf
-  height: 480,
-  width: 640,
-
-  /*
-  set a property on the globally available "App" object...
-  this is a hack and should be changed
-  */
-  willInsertElement: function() {
-    window.onYouTubePlayerReady = function (id) {
-      App.ytControllerRef.set('youtubeReady', true);
-    }
-  },
-
-  //when we insert the element, we embed the swf object
-  didInsertElement: function () {
-
-    var elId = this.get('controller.targetElId');
-
-    window.swfobject.embedSWF(
-      this.get('controller.videoSrc'),
-      elId,
-      this.get('width'), 
-      this.get('height'), 
-      "10", 
-      null, null, 
-      { allowScriptAccess: 'always' },
-      { id: elId }
-    );
-  },
-});
 
 });

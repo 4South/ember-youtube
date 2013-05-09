@@ -1,0 +1,37 @@
+<div class="navbar navbar-fixed-top navbar-inverse">
+  <div class="navbar-inner">
+
+    <a class="brand" href="#">{{playerStatus}}</a>
+
+    <form class="navbar-form pull-left">
+      <button class="btn btn-primary" {{action play}}>
+        <i class="icon-play icon-white"></i>
+      </button>
+      <button class="btn btn-primary" {{action pause}}>
+        <i class="icon-pause icon-white"></i>
+      </button>
+      <button class="btn btn-primary" {{action stop}}>
+        <i class="icon-stop icon-white"></i>
+      </button>
+      <button class="btn btn-primary" {{action mute}}>
+        <i class="icon-volume-off icon-white"></i>
+      </button>
+      <button class="btn btn-primary" {{action unmute}}>
+        <i class="icon-volume-up icon-white"></i>
+      </button>
+      <button class="btn btn-primary" {{action restart}}>
+        <i class="icon-repeat icon-white"></i>
+      </button>
+      {{input value=seekPos placeholder="time in seconds to seek to"}}
+      <button class="btn btn-primary" {{action seekTo seekPos}}>
+        <i class="icon-eye-open icon-white"></i>
+        seek
+      </button>
+      {{input value=videoURL placeholder="paste full youtube url"}}
+      <button class="btn btn-primary" {{action load videoURL}}>
+        <i class="icon-globe icon-white"></i>
+        load
+      </button>
+    </form>
+  </div>
+</div>

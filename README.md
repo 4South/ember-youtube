@@ -1,14 +1,10 @@
-##Project template##
-This project is a base for rich web applications running an express.js server (on node.js) serving data from mongodb over API endpoints to a 
-javascript application primarily powered by ember.js.
-##Project Dependencies##
-1. Ruby, Gem, Sass-gem
-2. mongodb
-3. node, npm
+#Intro
+Ember-Youtube is a simple tiny component (controller/view/template) that can be dropped into an existing ember application to enable
+the application to fully drive a chromeless youtube player via javascript.  
 
-##Setup##
-1. Clone this repo
-2. Run ```npm install```
+#Install
+Simply clone this repo and grab YoutubeController.js YoutubeView.js and youtube.handlebars from public/.  In the near future, I will have a 
+build-step that will output this as a tiny library for inclusion as javascript.
 
-##Building and Running the Project##
-This project supports many rich features afforded by a grunt build pipeline.  To run grunt, type ```grunt 4south```.
+#Live Demo
+See http://ember-youtube.herokuapp.com
