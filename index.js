@@ -31,5 +31,7 @@ app.post('/user/create', userRoutes.postcreate);
 app.get('/user/logout', userRoutes.getlogout);
 app.get('/user/sample', pass.verifyAuth, userRoutes.getsample);
 
+var port = process.env.PORT || 1234;
+
 //set server to listen on port
-app.listen(1234);
+app.listen( port );
