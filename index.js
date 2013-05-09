@@ -1,9 +1,5 @@
 var express = require('express')
-  , passport = require('passport')
-  , pass = require('./app/config/PassPort.js')
-  , app = express()
-  , userRoutes = require('./app/routes/UserRoutes.js')
-  , db = require('./app/DB/DB.js');
+  , app = express();
 
 //configuration for default env, could be changed for diff deployments
 app.configure(function() {
@@ -14,8 +10,6 @@ app.configure(function() {
   app.use(express.session({
     secret: '42',
   }));
-  app.use(passport.initialize());
-  app.use(passport.session());
   app.use(app.router);
   app.use(express.static(__dirname + "/public"));
   app.use(express.static(__dirname));
@@ -25,11 +19,6 @@ app.configure(function() {
 app.get('/', function(req, res) {
   res.sendfile(__dirname + "/index.html");
 });
-
-app.post('/user/login', passport.authenticate('local'), userRoutes.postlogin);
-app.post('/user/create', userRoutes.postcreate);
-app.get('/user/logout', userRoutes.getlogout);
-app.get('/user/sample', pass.verifyAuth, userRoutes.getsample);
 
 var port = process.env.PORT || 1234;
 
