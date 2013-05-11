@@ -6,154 +6,162 @@ minispade.require('views/YoutubeView.js');
 });
 
 minispade.register('controllers/YoutubeController.js', function() {
-App.YoutubeController = Ember.Controller.extend({
+/*
+this is a video model.  the youtube controller instance in your app
+should have its content set to one of these
+youtubeview instances will look for data from this object to create the player
+*/
+App.YoutubeVideo = Ember.Object.extend({
 
-  //youtube domain
-  domain: "http://www.youtube.com/apiplayer/",
-  //id of the targetvideo
-  //activate javascript controls if desired
-  targetElId: 'ytplayer',  
+  height: 480,
+  width: 640,
+  videoUrl: "",
+  autohide: 1,
+  autoplay: 0,
+  controls: 0,
+  disablekb: 1,
+  enablejsapi: 1,
+  fs: 0,
+  iv_load_policy: 3,
+  modestbranding: 1,
+  rel: 0,
+  showinfo: 0,
+
+});
+
+App.YoutubeStateManager = Ember.StateManager.extend({
+
+  initialState: 'noplayer',
+  noplayer: Ember.State.extend(),
+  ready: Ember.State.extend(),
+  ended: Ember.State.extend(),
+  playing: Ember.State.extend(),
+  paused: Ember.State.extend(),
+  buffering: Ember.State.extend(),
+
+  changeState: function (manager, controller, state, stateName) {
+    manager.transitionTo(stateName);    
+    controller.set('_playerState', state);
+  },
+
+});
+
+App.YoutubeController = Ember.ObjectController.extend({
+
   youtubeReady: false,
+  
+  //volume attrs
+  isMuted: false,
+  volume: 50,
+  volumeChoices: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+  
+  //attributes related to form inputs
+  newVideoUrl: "",
+  videoId: "Ga99hMi7wfY",
+  formSeekPosition: 0,
+  seekPosition: 0,
+
+  content: App.YoutubeVideo.create({
+    videoUrl: "http://www.youtube.com/watch?v=XjTSpgAm8QM",
+  }),
 
   /*
-  inject this controller onto the App object...this is a hack
-  to allow our global 'onYoutubeReady' event tell our controller
-  that it is loaded/ready for interaction
+  these methods are the intended interface for the rest of your app
+  these methods simply send messages to the state machine which in turn
+  transitions and changes the '_playerState' attribute on this controller
   */
-  init: function () {
-    this._super();
-    Ember.set('App.ytControllerRef', this);
+  play: function () { this._updateState(1) },
+
+  pause: function () { this._updateState(2) },
+
+  stop: function () { this._updateState(5) }, 
+
+  mute: function () { this.set('isMuted', true) },
+
+  unmute: function () { this.set('isMuted', false) },
+
+
+  seekTo: function(seconds) { 
+    this.set('seekPosition', this.get('formSeekPosition'));
   },
 
-  //concatenated src url for video
-  videoSrc: function () {
-    var sourceString = "";
-
-    sourceString += this.get('domain');
-    sourceString +="?enablejsapi=1";
-    sourceString +="&playerapiid=";
-    sourceString +=this.get('targetElId');
-    sourceString +="&controls=0";
-    sourceString +="&disablekb=1";
-    sourceString +="&iv_load_policy=3";
-    sourceString +="&rel=0";
-
-    return sourceString;
-
-  }.property('domain', 'targetElId'),
-
-  //if youtubeReady then find element in the DOM
-  findElement: function () {
-    if (this.get('youtubeReady')) {
-      this.set('ytEl', document.getElementById(this.get('targetElId')));
-      this.get('ytEl').addEventListener("onStateChange", 
-                                        "App.ytControllerRef.handleStateChange", 
-                                        false);
-    } else {
-      this.set('ytEl', null); 
-    } 
-  }.observes('youtubeReady'),
-
-  /*
-  this handles state-change events emitted by the player
-  these are useful to control for the user changing the state
-  of your player in ways you did not intend
-  */
-  eventHandlers: {
-    0: 'videoEnded',
-    1: 'videoBecamePlaying',
-    2: 'videoBecamePaused',
-    3: 'videoBecameBuffering',
-    5: 'videoBecameStopped' 
-  },
-
-  handleStateChange: function(state) {
-    var handler = this.eventHandlers[state];
-    //check if handler exists for state and call if it is defined
-    if (handler) {
-      if (this[handler]) {
-        this[handler].call(this);
-      } else {
-        throw new Ember.Error("no handler named ", handler, 
-                              " found on ", this);
-      }
-    }
-  },
-
-  //called if video has ended 
-  videoEnded: function() {
-    //do something when a video has loaded and isn't started
-    this.set('playerStatus', 'ended');
-    return;
-  },
-
-  //called if video becomes playing
-  videoBecamePlaying: function() {
-    //do something if your video became playing
-    this.set('playerStatus', 'playing');
-    return;
-  },
-
-  //called if video becomes paused
-  videoBecamePaused: function() {
-    //do something if your video became paused 
-    this.set('playerStatus', 'paused');
-    return;
-  },
-
-  //called if video becomes stopped
-  videoBecameStopped: function() {
-    //do something if your video became stopped 
-    this.set('playerStatus', 'stopped');
-    return;
-  },
-
-  //called if video becomes buffering 
-  videoBecameBuffering: function() {
-    //do something if your video became stopped 
-    this.set('playerStatus', 'buffering');
-    return;
-  },
-
-  /*
-  these methods are intended to be the interface of this controller
-  if your app needs to affect the state of the player, it should do 
-  so through these methods
-  */
-  play: function () {
-    if (this.get('ytEl')) { this.get('ytEl').playVideo() }
-  },
-  pause: function () {
-    if (this.get('ytEl')) { this.get('ytEl').pauseVideo() }
-  },
-  stop: function () {
-    if (this.get('ytEl')) { this.get('ytEl').stopVideo() }
-  },
-  mute: function () {
-    if (this.get('ytEl')) { this.get('ytEl').mute() }
-  },
-  unmute: function () {
-    if (this.get('ytEl')) { this.get('ytEl').unMute() }
-  },
-  //seeks to 0seconds
-  restart: function() {
-    if (this.get('ytEl')) { 
-      this.get('ytEl').seekTo(0, true) 
-    }
-  },
-
-  //seeks to a provided seconds value
-  seekTo: function(seconds) {
-    if (this.get('ytEl')) { 
-      this.get('ytEl').seekTo(seconds, true) 
-    }
+  restart: function () {
+    this.set('seekPosition', 0);
   },
 
   //load a video by providing a youtube url
   load: function(url) {
-    if (!url) { return }
-    this.get('ytEl').loadVideoById(url.split("?v=")[1]); 
+    var model = this.get('model')
+      , id;
+
+    if (url === "") { return }
+    if (url.indexOf("youtube.com") === -1) { return }
+    
+    id = this.get('newVideoUrl').split('=')[1];
+
+    this.set('videoId', id);
   },
+
+  /*
+  if you override these calls be sure to call this._super()
+  */
+  //called when the video is ready for playing
+  onReady: function() { this.set('youtubeReady', true) },
+
+  //called if video has ended 
+  onEnded: function() {},
+
+  //called if video becomes playing
+  onPlaying: function() {},
+
+  //called if video becomes paused
+  onPaused: function() {},
+
+  //called if video becomes stopped
+  onStopped: function() {},
+
+  //called if video becomes buffering 
+  onBuffering: function() {},
+
+
+  /*
+  The entire state machine should NOT be overridden.  If you want to interact
+  with the youtube player/players, do so by using the public api methods such 
+  as 'play', 'pause', 'seek' etc
+  */
+  //maps emitted youtube player states to human-readable names 
+  _stateMapping: {
+    '-1': 'ready',
+    0: 'ended',
+    1: 'playing',
+    2: 'paused',
+    3: 'buffering',
+  },
+
+  _stateManager: App.YoutubeStateManager.create(), 
+
+  //never change this directly
+  _playerState: null,
+
+  _updateState: function (state) {
+    var stateName = this.get('_stateMapping')[state];
+
+    this.get('_stateManager').send('changeState', this, state, stateName);
+  }, 
+
+  //this observer will listen for changes in state and trigger methods
+  _listenForStateChange: function () {
+    var state = this.get('_playerState')
+      , stateName = this.get('_stateMapping')[state]
+      , methodName;
+
+    //sanity checking incase this state doesn't exist or youtube isnt ready
+    if (!stateName) { return }
+  
+    methodName = "on" + Ember.String.capitalize(stateName);
+
+    this.send(methodName); 
+  }.observes('_playerState'),
 
 });
 
@@ -164,38 +172,198 @@ minispade.register('views/ApplicationView.js', function() {
 });
 
 minispade.register('views/YoutubeView.js', function() {
+/*
+
+*/
 App.YoutubeView = Ember.View.extend({
 
-  //height and width of the embedded youtube swf
-  height: 480,
-  width: 640,
+  iframeId: "ytplayer",
+  targetId: "player",
 
-  /*
-  set a property on the globally available "App" object...
-  this is a hack and should be changed
-  */
-  willInsertElement: function() {
-    window.onYouTubePlayerReady = function (id) {
-      App.ytControllerRef.set('youtubeReady', true);
+  //called before this element is to be inserted into the DOM
+  willInsertElement: function () {
+    var thisView = this
+      , iframe = document.createElement('script')
+      , firstScript = document.getElementsByTagName('script')[0];
+    
+    //async grab the api player code and insert this before all scripts
+    iframe.src = "https://www.youtube.com/iframe_api";
+    firstScript.parentNode.insertBefore(iframe, firstScript); 
+    
+    //alert the controller that the player api is ready
+    window.onYouTubeIframeAPIReady = function () {
+      thisView.set('YT', YT);
+      thisView.createYoutubePlayer(); 
     }
   },
 
-  //when we insert the element, we embed the swf object
-  didInsertElement: function () {
+  willDestroyElement: function () {
+    this.set('ytplayer', null);
+  },
 
-    var elId = this.get('controller.targetElId');
+  //when we insert the element, we add our YT player object
+  createYoutubePlayer: function () {
+    var ytController = this.get('controller');
 
-    window.swfobject.embedSWF(
-      this.get('controller.videoSrc'),
-      elId,
-      this.get('width'), 
-      this.get('height'), 
-      "10", 
-      null, null, 
-      { allowScriptAccess: 'always' },
-      { id: elId }
+    //do we have a youtube video model to load?
+    if (!ytController.get('model')) { return }
+    var model = ytController.get('model')
+      , iframeId = this.get('iframeId')
+      , targetId = this.get('targetId')
+      , YT = this.get('YT');
+
+    this.set('ytplayer', new YT.Player(targetId, {
+        height: model.get('height'),
+        width: model.get('width'),
+        videoId: controller.get('videoId'),
+        //videoId: model.get('videoId'),
+        playerVars: {
+          autohide: model.get('autohide'),
+          autoplay: model.get('autoplay'),
+          controls: model.get('controls'),
+          disablekb: model.get('disablekb'),
+          enablejsapi: model.get('enablejsapi'),
+          fs: model.get('fs'),
+          iv_load_policy: model.get('iv_load_policy'),
+          modestbranding: model.get('modestbranding'),
+          playerapiid: iframeId,
+          rel: model.get('rel'),
+          showinfo: model.get('showinfo'),
+        },
+        events: {
+          onReady: this.sendStateChange.bind(this),
+          onStateChange: this.sendStateChange.bind(this),
+          onError: this.handleError.bind(this),
+        }
+      })
     );
   },
+
+  destroyYoutubePlayer: function () {
+    this.set('ytplayer', null);
+  },
+  
+
+  /*
+  this handles state-change events emitted by the player
+  these are useful to control for the user changing the state
+  of your player directly through the player UI
+  we broadcast to the controller our new state so that the controller
+  may optionally respond
+  */
+  sendStateChange: function (event) {
+    var state = event.data
+      , ytController = this.get('controller'); 
+
+    ytController._updateState(state);
+  },
+
+  handleError: function(event) {
+    var ytController = this.get('controller');
+    alert('an error occurred with that video');
+  },
+
+
+  /*
+  Here we define a ton of observers that react to changes in the controller's
+  model and update the ytplayer object for this view accordingly.
+  */
+
+  //we observe the state of the controller and determine our view's response
+  //by default, the view and controller's state are linked
+  stateHasChanged: function () {
+    var actionMapping = {
+      1: 'playVideo',
+      2: 'pauseVideo',
+    } 
+    var state = this.get('controller._playerState'),
+      action = actionMapping[state],
+      ytplayer = this.get('ytplayer');
+
+    //sanity checking
+    if (!ytplayer) { return }
+    if (!action) { return }        
+    
+    //call the appropriate behavior on the youtube player
+    ytplayer[action]();
+  }.observes('controller._playerState'),
+
+  dimensionsHaveChanged: function () {
+    var ytplayer = this.get('ytplayer')
+      controller = this.get('controller')
+      height = controller.get('model.height')
+      width = controller.get('model.width');
+    
+    if (!ytplayer) { return }    
+
+    //player must be atleast 200x200 and not larger than window
+    width = (width < 200) ? 200 : width;
+    width = (width > window.width) ? window.width : width;
+    height = (height < 200) ? 200 : height;
+    height = (height > window.height) ? window.height : height;
+
+    ytplayer.setSize(width, height);
+  }.observes('controller.model.height', 'controller.model.width'),
+
+
+  videoHasChanged: function () {
+    var ytplayer = this.get('ytplayer')
+      , videoId = this.get('controller.videoId');
+
+    if (!ytplayer) { return }
+
+    this.get('ytplayer').cueVideoById(videoId);
+  }.observes('controller.videoId'),  
+  
+
+  //for the moment, if these settings change we create a new yt player
+  settingsHaveChanged: function() {
+    var ytplayer = this.get('ytplayer');
+    
+    if (!ytplayer) { return }  
+  
+    this.createYoutubePlayer(); 
+  }.observes( 'controller.model.autohide', 'controller.model.autoplay',
+              'controller.model.controls', 'controller.model.disablekb',
+              'controller.model.enablejsapi', 'controller.model.fs',
+              'controller.model.iv_load_policy', 
+              'controller.model.modestbranding',
+              'controller.model.rel', 'controller.model.showinfo' ),
+
+
+  volumeHasChanged: function () {
+    var ytplayer = this.get('ytplayer')
+      , volume = this.get('controller.volume');
+
+    if (!ytplayer) { return }
+
+    //volume must be between 0 and 100
+    volume = (volume < 0) ? 0 : volume;
+    volume = (volume > 100) ? 100 : volume;
+  
+    ytplayer.setVolume(volume);
+  }.observes('controller.volume'),
+
+
+  muteHasChanged: function () {
+    var ytplayer = this.get('ytplayer')
+      , isMuted = this.get('controller.isMuted');
+
+    if (!ytplayer) { return }
+
+    if (isMuted) { ytplayer.mute() }
+    else { ytplayer.unMute() }
+  }.observes('controller.isMuted'),
+
+  seekPositionHasChanged: function () {
+    var ytplayer = this.get('ytplayer')
+      , seekPosition = this.get('controller.seekPosition');
+
+    if (!ytplayer) { return }
+
+    ytplayer.seekTo(seekPosition, true); 
+  }.observes('controller.seekPosition'),
+
 });
 
 });

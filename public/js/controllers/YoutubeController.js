@@ -1,150 +1,158 @@
-App.YoutubeController = Ember.Controller.extend({
+/*
+this is a video model.  the youtube controller instance in your app
+should have its content set to one of these
+youtubeview instances will look for data from this object to create the player
+*/
+App.YoutubeVideo = Ember.Object.extend({
 
-  //youtube domain
-  domain: "http://www.youtube.com/apiplayer/",
-  //id of the targetvideo
-  //activate javascript controls if desired
-  targetElId: 'ytplayer',  
+  height: 480,
+  width: 640,
+  videoUrl: "",
+  autohide: 1,
+  autoplay: 0,
+  controls: 0,
+  disablekb: 1,
+  enablejsapi: 1,
+  fs: 0,
+  iv_load_policy: 3,
+  modestbranding: 1,
+  rel: 0,
+  showinfo: 0,
+
+});
+
+App.YoutubeStateManager = Ember.StateManager.extend({
+
+  initialState: 'noplayer',
+  noplayer: Ember.State.extend(),
+  ready: Ember.State.extend(),
+  ended: Ember.State.extend(),
+  playing: Ember.State.extend(),
+  paused: Ember.State.extend(),
+  buffering: Ember.State.extend(),
+
+  changeState: function (manager, controller, state, stateName) {
+    manager.transitionTo(stateName);    
+    controller.set('_playerState', state);
+  },
+
+});
+
+App.YoutubeController = Ember.ObjectController.extend({
+
   youtubeReady: false,
+  
+  //volume attrs
+  isMuted: false,
+  volume: 50,
+  volumeChoices: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+  
+  //attributes related to form inputs
+  newVideoUrl: "",
+  videoId: "Ga99hMi7wfY",
+  formSeekPosition: 0,
+  seekPosition: 0,
+
+  content: App.YoutubeVideo.create({
+    videoUrl: "http://www.youtube.com/watch?v=XjTSpgAm8QM",
+  }),
 
   /*
-  inject this controller onto the App object...this is a hack
-  to allow our global 'onYoutubeReady' event tell our controller
-  that it is loaded/ready for interaction
+  these methods are the intended interface for the rest of your app
+  these methods simply send messages to the state machine which in turn
+  transitions and changes the '_playerState' attribute on this controller
   */
-  init: function () {
-    this._super();
-    Ember.set('App.ytControllerRef', this);
+  play: function () { this._updateState(1) },
+
+  pause: function () { this._updateState(2) },
+
+  stop: function () { this._updateState(5) }, 
+
+  mute: function () { this.set('isMuted', true) },
+
+  unmute: function () { this.set('isMuted', false) },
+
+
+  seekTo: function(seconds) { 
+    this.set('seekPosition', this.get('formSeekPosition'));
   },
 
-  //concatenated src url for video
-  videoSrc: function () {
-    var sourceString = "";
-
-    sourceString += this.get('domain');
-    sourceString +="?enablejsapi=1";
-    sourceString +="&playerapiid=";
-    sourceString +=this.get('targetElId');
-    sourceString +="&controls=0";
-    sourceString +="&disablekb=1";
-    sourceString +="&iv_load_policy=3";
-    sourceString +="&rel=0";
-
-    return sourceString;
-
-  }.property('domain', 'targetElId'),
-
-  //if youtubeReady then find element in the DOM
-  findElement: function () {
-    if (this.get('youtubeReady')) {
-      this.set('ytEl', document.getElementById(this.get('targetElId')));
-      this.get('ytEl').addEventListener("onStateChange", 
-                                        "App.ytControllerRef.handleStateChange", 
-                                        false);
-    } else {
-      this.set('ytEl', null); 
-    } 
-  }.observes('youtubeReady'),
-
-  /*
-  this handles state-change events emitted by the player
-  these are useful to control for the user changing the state
-  of your player in ways you did not intend
-  */
-  eventHandlers: {
-    0: 'videoEnded',
-    1: 'videoBecamePlaying',
-    2: 'videoBecamePaused',
-    3: 'videoBecameBuffering',
-    5: 'videoBecameStopped' 
-  },
-
-  handleStateChange: function(state) {
-    var handler = this.eventHandlers[state];
-    //check if handler exists for state and call if it is defined
-    if (handler) {
-      if (this[handler]) {
-        this[handler].call(this);
-      } else {
-        throw new Ember.Error("no handler named ", handler, 
-                              " found on ", this);
-      }
-    }
-  },
-
-  //called if video has ended 
-  videoEnded: function() {
-    //do something when a video has loaded and isn't started
-    this.set('playerStatus', 'ended');
-    return;
-  },
-
-  //called if video becomes playing
-  videoBecamePlaying: function() {
-    //do something if your video became playing
-    this.set('playerStatus', 'playing');
-    return;
-  },
-
-  //called if video becomes paused
-  videoBecamePaused: function() {
-    //do something if your video became paused 
-    this.set('playerStatus', 'paused');
-    return;
-  },
-
-  //called if video becomes stopped
-  videoBecameStopped: function() {
-    //do something if your video became stopped 
-    this.set('playerStatus', 'stopped');
-    return;
-  },
-
-  //called if video becomes buffering 
-  videoBecameBuffering: function() {
-    //do something if your video became stopped 
-    this.set('playerStatus', 'buffering');
-    return;
-  },
-
-  /*
-  these methods are intended to be the interface of this controller
-  if your app needs to affect the state of the player, it should do 
-  so through these methods
-  */
-  play: function () {
-    if (this.get('ytEl')) { this.get('ytEl').playVideo() }
-  },
-  pause: function () {
-    if (this.get('ytEl')) { this.get('ytEl').pauseVideo() }
-  },
-  stop: function () {
-    if (this.get('ytEl')) { this.get('ytEl').stopVideo() }
-  },
-  mute: function () {
-    if (this.get('ytEl')) { this.get('ytEl').mute() }
-  },
-  unmute: function () {
-    if (this.get('ytEl')) { this.get('ytEl').unMute() }
-  },
-  //seeks to 0seconds
-  restart: function() {
-    if (this.get('ytEl')) { 
-      this.get('ytEl').seekTo(0, true) 
-    }
-  },
-
-  //seeks to a provided seconds value
-  seekTo: function(seconds) {
-    if (this.get('ytEl')) { 
-      this.get('ytEl').seekTo(seconds, true) 
-    }
+  restart: function () {
+    this.set('seekPosition', 0);
   },
 
   //load a video by providing a youtube url
   load: function(url) {
-    if (!url) { return }
-    this.get('ytEl').loadVideoById(url.split("?v=")[1]); 
+    var model = this.get('model')
+      , id;
+
+    if (url === "") { return }
+    if (url.indexOf("youtube.com") === -1) { return }
+    
+    id = this.get('newVideoUrl').split('=')[1];
+
+    this.set('videoId', id);
   },
+
+  /*
+  if you override these calls be sure to call this._super()
+  */
+  //called when the video is ready for playing
+  onReady: function() { this.set('youtubeReady', true) },
+
+  //called if video has ended 
+  onEnded: function() {},
+
+  //called if video becomes playing
+  onPlaying: function() {},
+
+  //called if video becomes paused
+  onPaused: function() {},
+
+  //called if video becomes stopped
+  onStopped: function() {},
+
+  //called if video becomes buffering 
+  onBuffering: function() {},
+
+
+  /*
+  The entire state machine should NOT be overridden.  If you want to interact
+  with the youtube player/players, do so by using the public api methods such 
+  as 'play', 'pause', 'seek' etc
+  */
+  //maps emitted youtube player states to human-readable names 
+  _stateMapping: {
+    '-1': 'ready',
+    0: 'ended',
+    1: 'playing',
+    2: 'paused',
+    3: 'buffering',
+  },
+
+  _stateManager: App.YoutubeStateManager.create(), 
+
+  //never change this directly
+  _playerState: null,
+
+  _updateState: function (state) {
+    var stateName = this.get('_stateMapping')[state];
+
+    this.get('_stateManager').send('changeState', this, state, stateName);
+  }, 
+
+  //this observer will listen for changes in state and trigger methods
+  _listenForStateChange: function () {
+    var state = this.get('_playerState')
+      , stateName = this.get('_stateMapping')[state]
+      , methodName;
+
+    //sanity checking incase this state doesn't exist or youtube isnt ready
+    if (!stateName) { return }
+  
+    methodName = "on" + Ember.String.capitalize(stateName);
+
+    this.send(methodName); 
+  }.observes('_playerState'),
 
 });
