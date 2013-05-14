@@ -41,11 +41,11 @@ App.YoutubeView = Ember.View.extend({
       , height
       , width;
 
-    if (!ytplayer) { return }
+    if (!ytplayer) { return; }
     
     width = $(window).width() * (4/12);
     height = width * (480/640);
-    Ember.run(ytplayer.setSize(width, height)); 
+    ytplayer.setSize(width, height); 
   },
 
   //when we insert the element, we add our YT player object
@@ -53,7 +53,7 @@ App.YoutubeView = Ember.View.extend({
     var ytController = this.get('controller');
 
     //do we have a youtube video model to load?
-    if (!ytController.get('model')) { return }
+    if (!ytController.get('model')) { return; }
     var model = ytController.get('model')
       , iframeId = this.get('iframeId')
       , iframe = document.getElementById(iframeId);
@@ -108,8 +108,8 @@ App.YoutubeView = Ember.View.extend({
       ytplayer = this.get('ytplayer');
 
     //sanity checking
-    if (!ytplayer) { return }
-    if (!action) { return }        
+    if (!ytplayer) { return; }
+    if (!action) { return; }        
     
     //call the appropriate behavior on the youtube player
     ytplayer[action]();
@@ -122,7 +122,7 @@ App.YoutubeView = Ember.View.extend({
       height = controller.get('model.height')
       width = controller.get('model.width');
     
-    if (!ytplayer) { return }    
+    if (!ytplayer) { return; }    
 
     //player must be atleast 200x200 and not larger than window
     width = (width < 200) ? 200 : width;
@@ -138,7 +138,7 @@ App.YoutubeView = Ember.View.extend({
     var ytplayer = this.get('ytplayer')
       , videoId = this.get('controller.videoId');
 
-    if (!ytplayer) { return }
+    if (!ytplayer) { return; }
 
     this.get('ytplayer').cueVideoById(videoId);
   }.observes('controller.videoId'),  
@@ -148,7 +148,7 @@ App.YoutubeView = Ember.View.extend({
   settingsHaveChanged: function() {
     var ytplayer = this.get('ytplayer');
     
-    if (!ytplayer) { return }  
+    if (!ytplayer) { return; }  
   
     this.createYoutubePlayer(); 
   }.observes( 'controller.model.autohide', 'controller.model.autoplay',
@@ -163,7 +163,7 @@ App.YoutubeView = Ember.View.extend({
     var ytplayer = this.get('ytplayer')
       , volume = this.get('controller.volume');
 
-    if (!ytplayer) { return }
+    if (!ytplayer) { return; }
 
     //volume must be between 0 and 100
     volume = (volume < 0) ? 0 : volume;
@@ -177,17 +177,17 @@ App.YoutubeView = Ember.View.extend({
     var ytplayer = this.get('ytplayer')
       , isMuted = this.get('controller.isMuted');
 
-    if (!ytplayer) { return }
+    if (!ytplayer) { return; }
 
-    if (isMuted) { ytplayer.mute() }
-    else { ytplayer.unMute() }
+    if (isMuted) { ytplayer.mute(); }
+    else { ytplayer.unMute(); }
   }.observes('controller.isMuted'),
 
   seekPositionHasChanged: function () {
     var ytplayer = this.get('ytplayer')
       , seekPosition = this.get('controller.seekPosition');
 
-    if (!ytplayer) { return }
+    if (!ytplayer) { return; }
 
     ytplayer.seekTo(seekPosition, true); 
   }.observes('controller.seekPosition'),

@@ -46,15 +46,15 @@ App.YoutubeController = Ember.ObjectController.extend({
   these methods simply send messages to the state machine which in turn
   transitions and changes the '_playerState' attribute on this controller
   */
-  play: function () { this._updateState(1) },
+  play: function () { this._updateState(1); },
 
-  pause: function () { this._updateState(2) },
+  pause: function () { this._updateState(2); },
 
-  stop: function () { this._updateState(5) }, 
+  stop: function () { this._updateState(5); }, 
 
-  mute: function () { this.set('isMuted', true) },
+  mute: function () { this.set('isMuted', true); },
 
-  unmute: function () { this.set('isMuted', false) },
+  unmute: function () { this.set('isMuted', false); },
 
 
   seekTo: function(seconds) { 
@@ -71,7 +71,7 @@ App.YoutubeController = Ember.ObjectController.extend({
       , id;
 
     if (url === "") { return }
-    if (url.indexOf("youtube.com") === -1) { return }
+    if (url.indexOf("youtube.com") === -1) { return; }
     
     id = this.get('newVideoUrl').split('=')[1];
 
@@ -82,7 +82,7 @@ App.YoutubeController = Ember.ObjectController.extend({
   if you override these calls be sure to call this._super()
   */
   //called when the video is ready for playing
-  onReady: function() { this.set('youtubeReady', true) },
+  onReady: function() { this.set('youtubeReady', true); },
 
   //called if video has ended 
   onEnded: function() {},

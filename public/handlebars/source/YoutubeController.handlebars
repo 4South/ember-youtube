@@ -46,15 +46,15 @@ App.YoutubeController = Ember.ObjectController.extend({
   these methods simply send messages to the state machine which in turn
   transitions and changes the '_playerState' attribute on this controller
   */</span>
-  play: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> <span class="keyword">this</span>._updateState(<span class="number">1</span>) },
+  play: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> <span class="keyword">this</span>._updateState(<span class="number">1</span>); },
 
-  pause: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> <span class="keyword">this</span>._updateState(<span class="number">2</span>) },
+  pause: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> <span class="keyword">this</span>._updateState(<span class="number">2</span>); },
 
-  stop: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> <span class="keyword">this</span>._updateState(<span class="number">5</span>) }, 
+  stop: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> <span class="keyword">this</span>._updateState(<span class="number">5</span>); }, 
 
-  mute: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> <span class="keyword">this</span>.set(<span class="string">'isMuted'</span>, <span class="literal">true</span>) },
+  mute: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> <span class="keyword">this</span>.set(<span class="string">'isMuted'</span>, <span class="literal">true</span>); },
 
-  unmute: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> <span class="keyword">this</span>.set(<span class="string">'isMuted'</span>, <span class="literal">false</span>) },
+  unmute: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> <span class="keyword">this</span>.set(<span class="string">'isMuted'</span>, <span class="literal">false</span>); },
 
 
   seekTo: <span class="keyword">function</span>(seconds) { 
@@ -71,7 +71,7 @@ App.YoutubeController = Ember.ObjectController.extend({
       , id;
 
     <span class="keyword">if</span> (url === <span class="string">""</span>) { <span class="keyword">return</span> }
-    <span class="keyword">if</span> (url.indexOf(<span class="string">"youtube.com"</span>) === -<span class="number">1</span>) { <span class="keyword">return</span> }
+    <span class="keyword">if</span> (url.indexOf(<span class="string">"youtube.com"</span>) === -<span class="number">1</span>) { <span class="keyword">return</span>; }
     
     id = <span class="keyword">this</span>.get(<span class="string">'newVideoUrl'</span>).split(<span class="string">'='</span>)[<span class="number">1</span>];
 
@@ -82,7 +82,7 @@ App.YoutubeController = Ember.ObjectController.extend({
   if you override these calls be sure to call this._super()
   */</span>
   <span class="comment">//called when the video is ready for playing</span>
-  onReady: <span class="keyword">function</span>() { <span class="keyword">this</span>.set(<span class="string">'youtubeReady'</span>, <span class="literal">true</span>) },
+  onReady: <span class="keyword">function</span>() { <span class="keyword">this</span>.set(<span class="string">'youtubeReady'</span>, <span class="literal">true</span>); },
 
   <span class="comment">//called if video has ended </span>
   onEnded: <span class="keyword">function</span>() {},

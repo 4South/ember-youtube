@@ -41,11 +41,11 @@ App.YoutubeView = Ember.View.extend({
       , height
       , width;
 
-    <span class="keyword">if</span> (!ytplayer) { <span class="keyword">return</span> }
+    <span class="keyword">if</span> (!ytplayer) { <span class="keyword">return</span>; }
     
     width = $(window).width() * (<span class="number">4</span>/<span class="number">12</span>);
     height = width * (<span class="number">480</span>/<span class="number">640</span>);
-    Ember.run(ytplayer.setSize(width, height)); 
+    ytplayer.setSize(width, height); 
   },
 
   <span class="comment">//when we insert the element, we add our YT player object</span>
@@ -53,7 +53,7 @@ App.YoutubeView = Ember.View.extend({
     <span class="keyword">var</span> ytController = <span class="keyword">this</span>.get(<span class="string">'controller'</span>);
 
     <span class="comment">//do we have a youtube video model to load?</span>
-    <span class="keyword">if</span> (!ytController.get(<span class="string">'model'</span>)) { <span class="keyword">return</span> }
+    <span class="keyword">if</span> (!ytController.get(<span class="string">'model'</span>)) { <span class="keyword">return</span>; }
     <span class="keyword">var</span> model = ytController.get(<span class="string">'model'</span>)
       , iframeId = <span class="keyword">this</span>.get(<span class="string">'iframeId'</span>)
       , iframe = document.getElementById(iframeId);
@@ -108,8 +108,8 @@ App.YoutubeView = Ember.View.extend({
       ytplayer = <span class="keyword">this</span>.get(<span class="string">'ytplayer'</span>);
 
     <span class="comment">//sanity checking</span>
-    <span class="keyword">if</span> (!ytplayer) { <span class="keyword">return</span> }
-    <span class="keyword">if</span> (!action) { <span class="keyword">return</span> }        
+    <span class="keyword">if</span> (!ytplayer) { <span class="keyword">return</span>; }
+    <span class="keyword">if</span> (!action) { <span class="keyword">return</span>; }        
     
     <span class="comment">//call the appropriate behavior on the youtube player</span>
     ytplayer[action]();
@@ -122,7 +122,7 @@ App.YoutubeView = Ember.View.extend({
       height = controller.get(<span class="string">'model.height'</span>)
       width = controller.get(<span class="string">'model.width'</span>);
     
-    <span class="keyword">if</span> (!ytplayer) { <span class="keyword">return</span> }    
+    <span class="keyword">if</span> (!ytplayer) { <span class="keyword">return</span>; }    
 
     <span class="comment">//player must be atleast 200x200 and not larger than window</span>
     width = (width &lt; <span class="number">200</span>) ? <span class="number">200</span> : width;
@@ -138,7 +138,7 @@ App.YoutubeView = Ember.View.extend({
     <span class="keyword">var</span> ytplayer = <span class="keyword">this</span>.get(<span class="string">'ytplayer'</span>)
       , videoId = <span class="keyword">this</span>.get(<span class="string">'controller.videoId'</span>);
 
-    <span class="keyword">if</span> (!ytplayer) { <span class="keyword">return</span> }
+    <span class="keyword">if</span> (!ytplayer) { <span class="keyword">return</span>; }
 
     <span class="keyword">this</span>.get(<span class="string">'ytplayer'</span>).cueVideoById(videoId);
   }.observes(<span class="string">'controller.videoId'</span>),  
@@ -148,7 +148,7 @@ App.YoutubeView = Ember.View.extend({
   settingsHaveChanged: <span class="keyword">function</span>() {
     <span class="keyword">var</span> ytplayer = <span class="keyword">this</span>.get(<span class="string">'ytplayer'</span>);
     
-    <span class="keyword">if</span> (!ytplayer) { <span class="keyword">return</span> }  
+    <span class="keyword">if</span> (!ytplayer) { <span class="keyword">return</span>; }  
   
     <span class="keyword">this</span>.createYoutubePlayer(); 
   }.observes( <span class="string">'controller.model.autohide'</span>, <span class="string">'controller.model.autoplay'</span>,
@@ -163,7 +163,7 @@ App.YoutubeView = Ember.View.extend({
     <span class="keyword">var</span> ytplayer = <span class="keyword">this</span>.get(<span class="string">'ytplayer'</span>)
       , volume = <span class="keyword">this</span>.get(<span class="string">'controller.volume'</span>);
 
-    <span class="keyword">if</span> (!ytplayer) { <span class="keyword">return</span> }
+    <span class="keyword">if</span> (!ytplayer) { <span class="keyword">return</span>; }
 
     <span class="comment">//volume must be between 0 and 100</span>
     volume = (volume &lt; <span class="number">0</span>) ? <span class="number">0</span> : volume;
@@ -177,17 +177,17 @@ App.YoutubeView = Ember.View.extend({
     <span class="keyword">var</span> ytplayer = <span class="keyword">this</span>.get(<span class="string">'ytplayer'</span>)
       , isMuted = <span class="keyword">this</span>.get(<span class="string">'controller.isMuted'</span>);
 
-    <span class="keyword">if</span> (!ytplayer) { <span class="keyword">return</span> }
+    <span class="keyword">if</span> (!ytplayer) { <span class="keyword">return</span>; }
 
-    <span class="keyword">if</span> (isMuted) { ytplayer.mute() }
-    <span class="keyword">else</span> { ytplayer.unMute() }
+    <span class="keyword">if</span> (isMuted) { ytplayer.mute(); }
+    <span class="keyword">else</span> { ytplayer.unMute(); }
   }.observes(<span class="string">'controller.isMuted'</span>),
 
   seekPositionHasChanged: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
     <span class="keyword">var</span> ytplayer = <span class="keyword">this</span>.get(<span class="string">'ytplayer'</span>)
       , seekPosition = <span class="keyword">this</span>.get(<span class="string">'controller.seekPosition'</span>);
 
-    <span class="keyword">if</span> (!ytplayer) { <span class="keyword">return</span> }
+    <span class="keyword">if</span> (!ytplayer) { <span class="keyword">return</span>; }
 
     ytplayer.seekTo(seekPosition, <span class="literal">true</span>); 
   }.observes(<span class="string">'controller.seekPosition'</span>),
