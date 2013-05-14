@@ -10,3 +10,6 @@ App.deferReadiness();
 window.onYouTubeIframeAPIReady = function () {
   App.advanceReadiness();
 }
+
+//fallback advance called because heroku is dumb
+Ember.run.later(App.advanceReadiness, 3000);
