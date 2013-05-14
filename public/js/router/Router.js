@@ -4,6 +4,8 @@ App.Router.map( function () {
     this.route('ytcontroller', { path: "/ytcontroller" });
     this.route('ytview', { path: "/ytview" });
     this.route('ytmodel', { path: "/ytmodel" });
+    this.route('ytrouter', { path: "/ytrouter" });
+    this.route('ytapp', { path: "/ytapp" });
   });
 
 });
@@ -12,6 +14,17 @@ App.IndexRoute = Ember.Route.extend({
   redirect: function () {
     this.replaceWith('youtube');
   },
+});
+
+App.YoutubeIndexRoute = Ember.Route.extend({
+
+  renderTemplate: function (controller, model) {
+    this.render("youtube-index", {
+      into: 'application',
+      outlet: 'code',
+    });
+  },
+
 });
 
 App.YoutubeRoute = Ember.Route.extend({
@@ -23,7 +36,6 @@ App.YoutubeRoute = Ember.Route.extend({
   },  
   
   renderTemplate: function (controller, model) {
-    console.log('ytroute rt fired');
     this.render("youtube", {
       into: 'application',
       outlet: 'player',
@@ -65,6 +77,28 @@ App.YoutubeYtmodelRoute = Ember.Route.extend({
 
   renderTemplate: function (controller, model) {
     this.render("source/YoutubeModel", {
+      into: 'application',
+      outlet: 'code',
+    }); 
+  },
+
+});
+
+App.YoutubeYtrouterRoute = Ember.Route.extend({
+
+  renderTemplate: function (controller, model) {
+    this.render("source/Router", {
+      into: 'application',
+      outlet: 'code',
+    }); 
+  },
+
+});
+
+App.YoutubeYtappRoute = Ember.Route.extend({
+
+  renderTemplate: function (controller, model) {
+    this.render("source/Application", {
       into: 'application',
       outlet: 'code',
     }); 

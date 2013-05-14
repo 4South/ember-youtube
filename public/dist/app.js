@@ -5,6 +5,12 @@ minispade.require('models/YoutubeModel.js');
 minispade.require('controllers/YoutubeController.js');
 minispade.require('views/YoutubeView.js');
 
+App.deferReadiness();
+
+window.onYouTubeIframeAPIReady = function () {
+  App.advanceReadiness();
+}
+
 });
 
 minispade.register('controllers/YoutubeController.js', function() {
@@ -188,6 +194,8 @@ App.Router.map( function () {
     this.route('ytcontroller', { path: "/ytcontroller" });
     this.route('ytview', { path: "/ytview" });
     this.route('ytmodel', { path: "/ytmodel" });
+    this.route('ytrouter', { path: "/ytrouter" });
+    this.route('ytapp', { path: "/ytapp" });
   });
 
 });
@@ -196,6 +204,17 @@ App.IndexRoute = Ember.Route.extend({
   redirect: function () {
     this.replaceWith('youtube');
   },
+});
+
+App.YoutubeIndexRoute = Ember.Route.extend({
+
+  renderTemplate: function (controller, model) {
+    this.render("youtube-index", {
+      into: 'application',
+      outlet: 'code',
+    });
+  },
+
 });
 
 App.YoutubeRoute = Ember.Route.extend({
@@ -207,7 +226,6 @@ App.YoutubeRoute = Ember.Route.extend({
   },  
   
   renderTemplate: function (controller, model) {
-    console.log('ytroute rt fired');
     this.render("youtube", {
       into: 'application',
       outlet: 'player',
@@ -256,6 +274,28 @@ App.YoutubeYtmodelRoute = Ember.Route.extend({
 
 });
 
+App.YoutubeYtrouterRoute = Ember.Route.extend({
+
+  renderTemplate: function (controller, model) {
+    this.render("source/Router", {
+      into: 'application',
+      outlet: 'code',
+    }); 
+  },
+
+});
+
+App.YoutubeYtappRoute = Ember.Route.extend({
+
+  renderTemplate: function (controller, model) {
+    this.render("source/Application", {
+      into: 'application',
+      outlet: 'code',
+    }); 
+  },
+
+});
+
 });
 
 minispade.register('views/ApplicationView.js', function() {
@@ -272,99 +312,67 @@ affect the ytplayer object
 App.YoutubeView = Ember.View.extend({
 
   iframeId: "ytplayer",
-  targetId: "player",
   classNames: ['fixedplayer'],
 
   //called before this element is to be inserted into the DOM
-  willInsertElement: function () {
-    var thisView = this
-      , iframe = document.createElement('script')
-      , firstScript = document.getElementsByTagName('script')[0];
-    
-    console.log('willinsert fired');
+  didInsertElement: function () {
+    var self = this
+      , $window = Ember.$(window);
 
+    this.createYoutubePlayer();
 
-    //async grab the api player code and insert this before all scripts
-    iframe.src = "https://www.youtube.com/iframe_api";
-    firstScript.parentNode.insertBefore(iframe, firstScript); 
-    
-    //alert the controller that the player api is ready
-    window.onYouTubeIframeAPIReady = function () {
-      thisView.set('YT', YT);
-      thisView.createYoutubePlayer(); 
-    }
+    //set jquery event to handle window resize
+    $window.resize(self.resizeListener.bind(self));
+   
+    //call once to set correct size 
+    self.resizeListener();
   },
 
   //called when view is being removed
   willDestroyElement: function () {
-    var id = this.get('targetId')
-      , iframe = document.getElementById(id)
-      , placeholder = document.createElement('div');
-    
-    //create a new target for future players to find
-    placeholder.id = id;
-    iframe.parentNode.insertBefore(placeholder, iframe);
-    iframe.remove();
+    var $window = Ember.$(window);
 
     //nullify the ytplayer instance
     this.set('ytplayer', null);
-    //unbind resize listener event
-    this.get('resizeListener').unbind();
-   
+    
+    //remove jquery listener
+    $window.unbind('resize', this.resizeListener);    
+    
+  },
+
+  //this function responds to window resize
+  resizeListener: function () {
+    var ytplayer = this.get('ytplayer')
+      , height
+      , width;
+
+    if (!ytplayer) { return }
+    
+    width = $(window).width() * (4/12);
+    height = width * (480/640);
+    Ember.run(ytplayer.setSize(width, height)); 
   },
 
   //when we insert the element, we add our YT player object
   createYoutubePlayer: function () {
     var ytController = this.get('controller');
 
-    console.log('createYT fired');
-
-
     //do we have a youtube video model to load?
     if (!ytController.get('model')) { return }
     var model = ytController.get('model')
       , iframeId = this.get('iframeId')
-      , targetId = this.get('targetId')
-      , YT = this.get('YT');
+      , iframe = document.getElementById(iframeId);
 
-    //calculate height/width for player based on window size
-    var width = $(window).width() * (4/12);
-    var height = width * (480 / 640);
+    var yt = new YT.Player(iframe, {
+      events: {
+        onReady: this.sendStateChange.bind(this),
+        onStateChange: this.sendStateChange.bind(this),
+        onError: this.handleError.bind(this),
+      }, 
+    });
+  
+    this.set('ytplayer', yt);
 
-    //set jquery event to handle window resize
-    this.set('resizeListener', $(window).resize(
-      this.responsiveResizePlayer.bind(this))
-    );
-
-    this.set('ytplayer', new YT.Player(targetId, {
-
-        height: height,
-        width: width,
-    
-        //height: model.get('height'),
-        //width: model.get('width'),
-        videoId: controller.get('videoId'),
-        //videoId: model.get('videoId'),
-        playerVars: {
-          autohide: model.get('autohide'),
-          autoplay: model.get('autoplay'),
-          controls: model.get('controls'),
-          disablekb: model.get('disablekb'),
-          enablejsapi: model.get('enablejsapi'),
-          fs: model.get('fs'),
-          iv_load_policy: model.get('iv_load_policy'),
-          modestbranding: model.get('modestbranding'),
-          playerapiid: iframeId,
-          rel: model.get('rel'),
-          showinfo: model.get('showinfo'),
-        },
-        events: {
-          onReady: this.sendStateChange.bind(this),
-          onStateChange: this.sendStateChange.bind(this),
-          onError: this.handleError.bind(this),
-        }
-      })
-    );
   },
 
   
@@ -413,19 +421,6 @@ App.YoutubeView = Ember.View.extend({
   }.observes('controller._playerState'),
 
   
-  //this function responds to window resize
-  responsiveResizePlayer: function () {
-    var ytplayer = this.get('ytplayer')
-      , height
-      , width;
-
-    if (!ytplayer) { return }
-    
-    width = $(window).width() * (4/12);
-    height = width * (480/640);
-    ytplayer.setSize(width, height); 
-  },
-
   dimensionsHaveChanged: function () {
     var ytplayer = this.get('ytplayer')
       controller = this.get('controller')

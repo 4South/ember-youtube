@@ -44,7 +44,9 @@ module.exports = (grunt) ->
     doc:
       src: [ 'public/js/controllers/YoutubeController.js',
              'public/js/views/YoutubeView.js',
-             'public/js/models/YoutubeModel.js']
+             'public/js/models/YoutubeModel.js',
+             'public/js/router/Router.js',
+             'public/js/application/Application.js']
 
   grunt.loadNpmTasks('grunt-contrib-livereload')
   grunt.loadNpmTasks('grunt-contrib-sass')

@@ -1,0 +1,13 @@
+<pre><code>window.App = Ember.Application.create();
+
+require(<span class="string">'router/Router.js'</span>);
+require(<span class="string">'models/YoutubeModel.js'</span>);
+require(<span class="string">'controllers/YoutubeController.js'</span>);
+require(<span class="string">'views/YoutubeView.js'</span>);
+
+App.deferReadiness();
+
+window.onYouTubeIframeAPIReady = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+  App.advanceReadiness();
+}
+</code></pre>

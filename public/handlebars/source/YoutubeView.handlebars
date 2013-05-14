@@ -7,99 +7,67 @@ affect the ytplayer object
 App.YoutubeView = Ember.View.extend({
 
   iframeId: <span class="string">"ytplayer"</span>,
-  targetId: <span class="string">"player"</span>,
   classNames: [<span class="string">'fixedplayer'</span>],
 
   <span class="comment">//called before this element is to be inserted into the DOM</span>
-  willInsertElement: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-    <span class="keyword">var</span> thisView = <span class="keyword">this</span>
-      , iframe = document.createElement(<span class="string">'script'</span>)
-      , firstScript = document.getElementsByTagName(<span class="string">'script'</span>)[<span class="number">0</span>];
-    
-    console.log(<span class="string">'willinsert fired'</span>);
+  didInsertElement: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+    <span class="keyword">var</span> self = <span class="keyword">this</span>
+      , $window = Ember.$(window);
 
+    <span class="keyword">this</span>.createYoutubePlayer();
 
-    <span class="comment">//async grab the api player code and insert this before all scripts</span>
-    iframe.src = <span class="string">"https://www.youtube.com/iframe_api"</span>;
-    firstScript.parentNode.insertBefore(iframe, firstScript); 
-    
-    <span class="comment">//alert the controller that the player api is ready</span>
-    window.onYouTubeIframeAPIReady = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-      thisView.set(<span class="string">'YT'</span>, YT);
-      thisView.createYoutubePlayer(); 
-    }
+    <span class="comment">//set jquery event to handle window resize</span>
+    $window.resize(self.resizeListener.bind(self));
+   
+    <span class="comment">//call once to set correct size </span>
+    self.resizeListener();
   },
 
   <span class="comment">//called when view is being removed</span>
   willDestroyElement: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-    <span class="keyword">var</span> id = <span class="keyword">this</span>.get(<span class="string">'targetId'</span>)
-      , iframe = document.getElementById(id)
-      , placeholder = document.createElement(<span class="string">'div'</span>);
-    
-    <span class="comment">//create a new target for future players to find</span>
-    placeholder.id = id;
-    iframe.parentNode.insertBefore(placeholder, iframe);
-    iframe.remove();
+    <span class="keyword">var</span> $window = Ember.$(window);
 
     <span class="comment">//nullify the ytplayer instance</span>
     <span class="keyword">this</span>.set(<span class="string">'ytplayer'</span>, <span class="literal">null</span>);
-    <span class="comment">//unbind resize listener event</span>
-    <span class="keyword">this</span>.get(<span class="string">'resizeListener'</span>).unbind();
-   
+    
+    <span class="comment">//remove jquery listener</span>
+    $window.unbind(<span class="string">'resize'</span>, <span class="keyword">this</span>.resizeListener);    
+    
+  },
+
+  <span class="comment">//this function responds to window resize</span>
+  resizeListener: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+    <span class="keyword">var</span> ytplayer = <span class="keyword">this</span>.get(<span class="string">'ytplayer'</span>)
+      , height
+      , width;
+
+    <span class="keyword">if</span> (!ytplayer) { <span class="keyword">return</span> }
+    
+    width = $(window).width() * (<span class="number">4</span>/<span class="number">12</span>);
+    height = width * (<span class="number">480</span>/<span class="number">640</span>);
+    Ember.run(ytplayer.setSize(width, height)); 
   },
 
   <span class="comment">//when we insert the element, we add our YT player object</span>
   createYoutubePlayer: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
     <span class="keyword">var</span> ytController = <span class="keyword">this</span>.get(<span class="string">'controller'</span>);
 
-    console.log(<span class="string">'createYT fired'</span>);
-
-
     <span class="comment">//do we have a youtube video model to load?</span>
     <span class="keyword">if</span> (!ytController.get(<span class="string">'model'</span>)) { <span class="keyword">return</span> }
     <span class="keyword">var</span> model = ytController.get(<span class="string">'model'</span>)
       , iframeId = <span class="keyword">this</span>.get(<span class="string">'iframeId'</span>)
-      , targetId = <span class="keyword">this</span>.get(<span class="string">'targetId'</span>)
-      , YT = <span class="keyword">this</span>.get(<span class="string">'YT'</span>);
+      , iframe = document.getElementById(iframeId);
 
-    <span class="comment">//calculate height/width for player based on window size</span>
-    <span class="keyword">var</span> width = $(window).width() * (<span class="number">4</span>/<span class="number">12</span>);
-    <span class="keyword">var</span> height = width * (<span class="number">480</span> / <span class="number">640</span>);
+    <span class="keyword">var</span> yt = <span class="keyword">new</span> YT.Player(iframe, {
+      events: {
+        onReady: <span class="keyword">this</span>.sendStateChange.bind(<span class="keyword">this</span>),
+        onStateChange: <span class="keyword">this</span>.sendStateChange.bind(<span class="keyword">this</span>),
+        onError: <span class="keyword">this</span>.handleError.bind(<span class="keyword">this</span>),
+      }, 
+    });
+  
+    <span class="keyword">this</span>.set(<span class="string">'ytplayer'</span>, yt);
 
-    <span class="comment">//set jquery event to handle window resize</span>
-    <span class="keyword">this</span>.set(<span class="string">'resizeListener'</span>, $(window).resize(
-      <span class="keyword">this</span>.responsiveResizePlayer.bind(<span class="keyword">this</span>))
-    );
-
-    <span class="keyword">this</span>.set(<span class="string">'ytplayer'</span>, <span class="keyword">new</span> YT.Player(targetId, {
-
-        height: height,
-        width: width,
-    
-        <span class="comment">//height: model.get('height'),</span>
-        <span class="comment">//width: model.get('width'),</span>
-        videoId: controller.get(<span class="string">'videoId'</span>),
-        <span class="comment">//videoId: model.get('videoId'),</span>
-        playerVars: {
-          autohide: model.get(<span class="string">'autohide'</span>),
-          autoplay: model.get(<span class="string">'autoplay'</span>),
-          controls: model.get(<span class="string">'controls'</span>),
-          disablekb: model.get(<span class="string">'disablekb'</span>),
-          enablejsapi: model.get(<span class="string">'enablejsapi'</span>),
-          fs: model.get(<span class="string">'fs'</span>),
-          iv_load_policy: model.get(<span class="string">'iv_load_policy'</span>),
-          modestbranding: model.get(<span class="string">'modestbranding'</span>),
-          playerapiid: iframeId,
-          rel: model.get(<span class="string">'rel'</span>),
-          showinfo: model.get(<span class="string">'showinfo'</span>),
-        },
-        events: {
-          onReady: <span class="keyword">this</span>.sendStateChange.bind(<span class="keyword">this</span>),
-          onStateChange: <span class="keyword">this</span>.sendStateChange.bind(<span class="keyword">this</span>),
-          onError: <span class="keyword">this</span>.handleError.bind(<span class="keyword">this</span>),
-        }
-      })
-    );
   },
 
   
@@ -148,19 +116,6 @@ App.YoutubeView = Ember.View.extend({
   }.observes(<span class="string">'controller._playerState'</span>),
 
   
-  <span class="comment">//this function responds to window resize</span>
-  responsiveResizePlayer: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-    <span class="keyword">var</span> ytplayer = <span class="keyword">this</span>.get(<span class="string">'ytplayer'</span>)
-      , height
-      , width;
-
-    <span class="keyword">if</span> (!ytplayer) { <span class="keyword">return</span> }
-    
-    width = $(window).width() * (<span class="number">4</span>/<span class="number">12</span>);
-    height = width * (<span class="number">480</span>/<span class="number">640</span>);
-    ytplayer.setSize(width, height); 
-  },
-
   dimensionsHaveChanged: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
     <span class="keyword">var</span> ytplayer = <span class="keyword">this</span>.get(<span class="string">'ytplayer'</span>)
       controller = <span class="keyword">this</span>.get(<span class="string">'controller'</span>)

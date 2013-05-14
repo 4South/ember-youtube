@@ -3,9 +3,15 @@
   <header class="navbar navbar-fixed-top">
     <div class="navbar-inner">
       <ul class="nav">
+        <li>{{#linkTo "youtube"}}Ember-Youtube{{/linkTo}}</li>
+        <li>{{#linkTo "youtube.ytapp"}}App Code{{/linkTo}}</li>
+        <li>{{#linkTo "youtube.ytrouter"}}Router Code{{/linkTo}}</li>
         <li>{{#linkTo "youtube.ytcontroller"}}Controller Code{{/linkTo}}</li>
         <li>{{#linkTo "youtube.ytview"}}View Code{{/linkTo}}</li>
         <li>{{#linkTo "youtube.ytmodel"}}Model Code{{/linkTo}}</li>
+        <li><a href="https://github.com/4South/ember-youtube">
+          Ember-Youtube on Github
+        </a></li>
       </ul>
       {{outlet header}}
     </div>
