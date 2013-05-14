@@ -96,7 +96,7 @@ helpers = helpers || Ember.Handlebars.helpers; data = data || {};
   
 
 
-  data.buffer.push("<pre><code>window.App = Ember.Application.create();\n\nrequire(<span class=\"string\">'router/Router.js'</span>);\nrequire(<span class=\"string\">'models/YoutubeModel.js'</span>);\nrequire(<span class=\"string\">'controllers/YoutubeController.js'</span>);\nrequire(<span class=\"string\">'views/YoutubeView.js'</span>);\n\nApp.deferReadiness();\n\nwindow.onYouTubeIframeAPIReady = <span class=\"function\"><span class=\"keyword\">function</span> <span class=\"params\">()</span> {</span>\n  App.advanceReadiness();\n}\n\n<span class=\"comment\">//fallback advance called because heroku is dumb</span>\nEmber.run.later(App.advanceReadiness, <span class=\"number\">3000</span>);\n</code></pre>");
+  data.buffer.push("<pre><code>window.App = Ember.Application.create();\n\nrequire(<span class=\"string\">'router/Router.js'</span>);\nrequire(<span class=\"string\">'models/YoutubeModel.js'</span>);\nrequire(<span class=\"string\">'controllers/YoutubeController.js'</span>);\nrequire(<span class=\"string\">'views/YoutubeView.js'</span>);\n\nApp.deferReadiness();\n\nwindow.onYouTubeIframeAPIReady = <span class=\"function\"><span class=\"keyword\">function</span> <span class=\"params\">()</span> {</span>\n  App.advanceReadiness();\n}\n\n<span class=\"comment\">//fallback advance called because heroku is dumb</span>\nApp.advanceReadiness();\n</code></pre>");
   
 });
 

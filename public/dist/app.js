@@ -12,7 +12,7 @@ window.onYouTubeIframeAPIReady = function () {
 }
 
 //fallback advance called because heroku is dumb
-Ember.run.later(App.advanceReadiness, 3000);
+App.advanceReadiness();
 
 });
 
