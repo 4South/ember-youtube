@@ -1,0 +1,143 @@
+<pre><code>require(<span class="string">'models/YoutubeModel.js'</span>);
+
+<span class="comment">/*
+This state manager represents the current state of associated
+videos playing through connected/associated views
+NOTE: this may not represent the viewers actual state
+if the application allows the controller to drive in unison
+otherwise autonomous views
+*/</span>
+App.YoutubeStateManager = Ember.StateManager.extend({
+
+  initialState: <span class="string">'noplayer'</span>,
+  noplayer: Ember.State.extend(),
+  ready: Ember.State.extend(),
+  ended: Ember.State.extend(),
+  playing: Ember.State.extend(),
+  paused: Ember.State.extend(),
+  buffering: Ember.State.extend(),
+
+  changeState: <span class="function"><span class="keyword">function</span> <span class="params">(manager, controller, state, stateName)</span> {</span>
+    manager.transitionTo(stateName);    
+    controller.set(<span class="string">'_playerState'</span>, state);
+  },
+
+});
+
+
+App.YoutubeController = Ember.ObjectController.extend({
+
+  youtubeReady: <span class="literal">false</span>,
+  
+  <span class="comment">//volume attrs</span>
+  isMuted: <span class="literal">false</span>,
+  volume: <span class="number">50</span>,
+  volumeChoices: [<span class="number">0</span>, <span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>, <span class="number">40</span>, <span class="number">50</span>, <span class="number">60</span>, <span class="number">70</span>, <span class="number">80</span>, <span class="number">90</span>, <span class="number">100</span>],
+  
+  <span class="comment">//attributes related to form inputs</span>
+  newVideoUrl: <span class="string">""</span>,
+  videoId: <span class="string">"Ga99hMi7wfY"</span>,
+  formSeekPosition: <span class="number">0</span>,
+  seekPosition: <span class="number">0</span>,
+
+
+  <span class="comment">/*
+  these methods are the intended interface for the rest of your app
+  these methods simply send messages to the state machine which in turn
+  transitions and changes the '_playerState' attribute on this controller
+  */</span>
+  play: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> <span class="keyword">this</span>._updateState(<span class="number">1</span>) },
+
+  pause: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> <span class="keyword">this</span>._updateState(<span class="number">2</span>) },
+
+  stop: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> <span class="keyword">this</span>._updateState(<span class="number">5</span>) }, 
+
+  mute: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> <span class="keyword">this</span>.set(<span class="string">'isMuted'</span>, <span class="literal">true</span>) },
+
+  unmute: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> <span class="keyword">this</span>.set(<span class="string">'isMuted'</span>, <span class="literal">false</span>) },
+
+
+  seekTo: <span class="keyword">function</span>(seconds) { 
+    <span class="keyword">this</span>.set(<span class="string">'seekPosition'</span>, <span class="keyword">this</span>.get(<span class="string">'formSeekPosition'</span>));
+  },
+
+  restart: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+    <span class="keyword">this</span>.set(<span class="string">'seekPosition'</span>, <span class="number">0</span>);
+  },
+
+  <span class="comment">//load a video by providing a youtube url</span>
+  load: <span class="keyword">function</span>(url) {
+    <span class="keyword">var</span> model = <span class="keyword">this</span>.get(<span class="string">'model'</span>)
+      , id;
+
+    <span class="keyword">if</span> (url === <span class="string">""</span>) { <span class="keyword">return</span> }
+    <span class="keyword">if</span> (url.indexOf(<span class="string">"youtube.com"</span>) === -<span class="number">1</span>) { <span class="keyword">return</span> }
+    
+    id = <span class="keyword">this</span>.get(<span class="string">'newVideoUrl'</span>).split(<span class="string">'='</span>)[<span class="number">1</span>];
+
+    <span class="keyword">this</span>.set(<span class="string">'videoId'</span>, id);
+  },
+
+  <span class="comment">/*
+  if you override these calls be sure to call this._super()
+  */</span>
+  <span class="comment">//called when the video is ready for playing</span>
+  onReady: <span class="keyword">function</span>() { <span class="keyword">this</span>.set(<span class="string">'youtubeReady'</span>, <span class="literal">true</span>) },
+
+  <span class="comment">//called if video has ended </span>
+  onEnded: <span class="keyword">function</span>() {},
+
+  <span class="comment">//called if video becomes playing</span>
+  onPlaying: <span class="keyword">function</span>() {},
+
+  <span class="comment">//called if video becomes paused</span>
+  onPaused: <span class="keyword">function</span>() {},
+
+  <span class="comment">//called if video becomes stopped</span>
+  onStopped: <span class="keyword">function</span>() {},
+
+  <span class="comment">//called if video becomes buffering </span>
+  onBuffering: <span class="keyword">function</span>() {},
+
+
+  <span class="comment">/*
+  The entire state machine should NOT be overridden.  If you want to interact
+  with the youtube player/players, do so by using the public api methods such 
+  as 'play', 'pause', 'seek' etc
+  */</span>
+  <span class="comment">//maps emitted youtube player states to human-readable names </span>
+  _stateMapping: {
+    <span class="string">'-1'</span>: <span class="string">'ready'</span>,
+    <span class="number">0</span>: <span class="string">'ended'</span>,
+    <span class="number">1</span>: <span class="string">'playing'</span>,
+    <span class="number">2</span>: <span class="string">'paused'</span>,
+    <span class="number">3</span>: <span class="string">'buffering'</span>,
+  },
+
+  _stateManager: App.YoutubeStateManager.create(), 
+
+  <span class="comment">//never change this directly</span>
+  _playerState: <span class="literal">null</span>,
+
+  _updateState: <span class="function"><span class="keyword">function</span> <span class="params">(state)</span> {</span>
+    <span class="keyword">var</span> stateName = <span class="keyword">this</span>.get(<span class="string">'_stateMapping'</span>)[state];
+
+    <span class="keyword">this</span>.get(<span class="string">'_stateManager'</span>).send(<span class="string">'changeState'</span>, <span class="keyword">this</span>, state, stateName);
+  }, 
+
+  <span class="comment">//this observer will listen for changes in state and trigger methods</span>
+  _listenForStateChange: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+    <span class="keyword">var</span> state = <span class="keyword">this</span>.get(<span class="string">'_playerState'</span>)
+      , stateName = <span class="keyword">this</span>.get(<span class="string">'_stateMapping'</span>)[state]
+      , methodName;
+
+    <span class="comment">//sanity checking incase this state doesn't exist or youtube isnt ready</span>
+    <span class="keyword">if</span> (!stateName) { <span class="keyword">return</span> }
+  
+    methodName = <span class="string">"on"</span> + Ember.String.capitalize(stateName);
+
+    <span class="keyword">this</span>.send(methodName); 
+  }.observes(<span class="string">'_playerState'</span>),
+
+});
+</code></pre>

@@ -1,0 +1,51 @@
+{{#if youtubeReady}}
+  <form class="navbar-form pull-left">
+
+    <button class="btn btn-primary" {{action play}}>
+      <i class="icon-play icon-white"></i>
+    </button>
+
+    <button class="btn btn-primary" {{action pause}}>
+      <i class="icon-pause icon-white"></i>
+    </button>
+
+    {{view Ember.Select 
+            contentBinding="volumeChoices"
+            valueBinding="volume"
+            classNames="span1"
+    }}
+
+    <button class="btn btn-primary" {{action mute}}>
+      <i class="icon-volume-off icon-white"></i>
+    </button>
+
+    <button class="btn btn-primary" {{action unmute}}>
+      <i class="icon-volume-up icon-white"></i>
+    </button>
+
+    <button class="btn btn-primary" {{action restart}}>
+      <i class="icon-repeat icon-white"></i>
+    </button>
+
+    {{input value=formSeekPosition
+          placeholder="time(s)"
+          classNames="span1"
+          type="text"
+    }}
+    <button class="btn btn-primary" {{action seekTo formSeekPosition}}>
+      <i class="icon-eye-open icon-white"></i>
+      seek
+    </button>
+
+    {{input value=newVideoUrl 
+          placeholder="youtube video url"
+          type="text"
+          classNames="span3"
+    }}
+    <button class="btn btn-primary" {{action load newVideoUrl}}>
+      <i class="icon-globe icon-white"></i>
+      load
+    </button>
+    
+  </form>
+{{/if}}

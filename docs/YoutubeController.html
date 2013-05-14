@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>YoutubeController.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>YoutubeController.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>require(<span class="string">'models/YoutubeModel.js'</span>);
+
+<span class="comment">/*
+This state manager represents the current state of associated
+videos playing through connected/associated views
+NOTE: this may not represent the viewers actual state
+if the application allows the controller to drive in unison
+otherwise autonomous views
+*/</span>
+App.YoutubeStateManager = Ember.StateManager.extend({
+
+  initialState: <span class="string">'noplayer'</span>,
+  noplayer: Ember.State.extend(),
+  ready: Ember.State.extend(),
+  ended: Ember.State.extend(),
+  playing: Ember.State.extend(),
+  paused: Ember.State.extend(),
+  buffering: Ember.State.extend(),
+
+  changeState: <span class="function"><span class="keyword">function</span> <span class="params">(manager, controller, state, stateName)</span> {</span>
+    manager.transitionTo(stateName);    
+    controller.set(<span class="string">'_playerState'</span>, state);
+  },
+
+});
+
+
+App.YoutubeController = Ember.ObjectController.extend({
+
+  youtubeReady: <span class="literal">false</span>,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>volume attrs</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  isMuted: <span class="literal">false</span>,
+  volume: <span class="number">50</span>,
+  volumeChoices: [<span class="number">0</span>, <span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>, <span class="number">40</span>, <span class="number">50</span>, <span class="number">60</span>, <span class="number">70</span>, <span class="number">80</span>, <span class="number">90</span>, <span class="number">100</span>],</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>attributes related to form inputs</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  newVideoUrl: <span class="string">""</span>,
+  videoId: <span class="string">"Ga99hMi7wfY"</span>,
+  formSeekPosition: <span class="number">0</span>,
+  seekPosition: <span class="number">0</span>,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>content could be assigned by routes etc as per usual.  this is for demo </p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  content: App.YoutubeVideo.create({
+    videoUrl: <span class="string">"http://www.youtube.com/watch?v=XjTSpgAm8QM"</span>,
+  }),
+
+  <span class="comment">/*
+  these methods are the intended interface for the rest of your app
+  these methods simply send messages to the state machine which in turn
+  transitions and changes the '_playerState' attribute on this controller
+  */</span>
+  play: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> <span class="keyword">this</span>._updateState(<span class="number">1</span>) },
+
+  pause: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> <span class="keyword">this</span>._updateState(<span class="number">2</span>) },
+
+  stop: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> <span class="keyword">this</span>._updateState(<span class="number">5</span>) }, 
+
+  mute: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> <span class="keyword">this</span>.set(<span class="string">'isMuted'</span>, <span class="literal">true</span>) },
+
+  unmute: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> <span class="keyword">this</span>.set(<span class="string">'isMuted'</span>, <span class="literal">false</span>) },
+
+
+  seekTo: <span class="keyword">function</span>(seconds) { 
+    <span class="keyword">this</span>.set(<span class="string">'seekPosition'</span>, <span class="keyword">this</span>.get(<span class="string">'formSeekPosition'</span>));
+  },
+
+  restart: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+    <span class="keyword">this</span>.set(<span class="string">'seekPosition'</span>, <span class="number">0</span>);
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>load a video by providing a youtube url</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  load: <span class="keyword">function</span>(url) {
+    <span class="keyword">var</span> model = <span class="keyword">this</span>.get(<span class="string">'model'</span>)
+      , id;
+
+    <span class="keyword">if</span> (url === <span class="string">""</span>) { <span class="keyword">return</span> }
+    <span class="keyword">if</span> (url.indexOf(<span class="string">"youtube.com"</span>) === -<span class="number">1</span>) { <span class="keyword">return</span> }
+    
+    id = <span class="keyword">this</span>.get(<span class="string">'newVideoUrl'</span>).split(<span class="string">'='</span>)[<span class="number">1</span>];
+
+    <span class="keyword">this</span>.set(<span class="string">'videoId'</span>, id);
+  },
+
+  <span class="comment">/*
+  if you override these calls be sure to call this._super()
+  */</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>called when the video is ready for playing</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  onReady: <span class="keyword">function</span>() { <span class="keyword">this</span>.set(<span class="string">'youtubeReady'</span>, <span class="literal">true</span>) },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>called if video has ended </p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  onEnded: <span class="keyword">function</span>() {},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>called if video becomes playing</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  onPlaying: <span class="keyword">function</span>() {},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>called if video becomes paused</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  onPaused: <span class="keyword">function</span>() {},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>called if video becomes stopped</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  onStopped: <span class="keyword">function</span>() {},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>called if video becomes buffering </p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  onBuffering: <span class="keyword">function</span>() {},
+
+
+  <span class="comment">/*
+  The entire state machine should NOT be overridden.  If you want to interact
+  with the youtube player/players, do so by using the public api methods such 
+  as 'play', 'pause', 'seek' etc
+  */</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>maps emitted youtube player states to human-readable names </p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  _stateMapping: {
+    <span class="string">'-1'</span>: <span class="string">'ready'</span>,
+    <span class="number">0</span>: <span class="string">'ended'</span>,
+    <span class="number">1</span>: <span class="string">'playing'</span>,
+    <span class="number">2</span>: <span class="string">'paused'</span>,
+    <span class="number">3</span>: <span class="string">'buffering'</span>,
+  },
+
+  _stateManager: App.YoutubeStateManager.create(),</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>never change this directly</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  _playerState: <span class="literal">null</span>,
+
+  _updateState: <span class="function"><span class="keyword">function</span> <span class="params">(state)</span> {</span>
+    <span class="keyword">var</span> stateName = <span class="keyword">this</span>.get(<span class="string">'_stateMapping'</span>)[state];
+
+    <span class="keyword">this</span>.get(<span class="string">'_stateManager'</span>).send(<span class="string">'changeState'</span>, <span class="keyword">this</span>, state, stateName);
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>this observer will listen for changes in state and trigger methods</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  _listenForStateChange: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+    <span class="keyword">var</span> state = <span class="keyword">this</span>.get(<span class="string">'_playerState'</span>)
+      , stateName = <span class="keyword">this</span>.get(<span class="string">'_stateMapping'</span>)[state]
+      , methodName;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>sanity checking incase this state doesn&#39;t exist or youtube isnt ready</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">if</span> (!stateName) { <span class="keyword">return</span> }
+  
+    methodName = <span class="string">"on"</span> + Ember.String.capitalize(stateName);
+
+    <span class="keyword">this</span>.send(methodName); 
+  }.observes(<span class="string">'_playerState'</span>),
+
+});</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

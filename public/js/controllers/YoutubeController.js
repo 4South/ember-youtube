@@ -1,26 +1,12 @@
+require('models/YoutubeModel.js');
+
 /*
-this is a video model.  the youtube controller instance in your app
-should have its content set to one of these
-youtubeview instances will look for data from this object to create the player
+This state manager represents the current state of associated
+videos playing through connected/associated views
+NOTE: this may not represent the viewers actual state
+if the application allows the controller to drive in unison
+otherwise autonomous views
 */
-App.YoutubeVideo = Ember.Object.extend({
-
-  height: 480,
-  width: 640,
-  videoUrl: "",
-  autohide: 1,
-  autoplay: 0,
-  controls: 0,
-  disablekb: 1,
-  enablejsapi: 1,
-  fs: 0,
-  iv_load_policy: 3,
-  modestbranding: 1,
-  rel: 0,
-  showinfo: 0,
-
-});
-
 App.YoutubeStateManager = Ember.StateManager.extend({
 
   initialState: 'noplayer',
@@ -38,6 +24,7 @@ App.YoutubeStateManager = Ember.StateManager.extend({
 
 });
 
+
 App.YoutubeController = Ember.ObjectController.extend({
 
   youtubeReady: false,
@@ -53,9 +40,6 @@ App.YoutubeController = Ember.ObjectController.extend({
   formSeekPosition: 0,
   seekPosition: 0,
 
-  content: App.YoutubeVideo.create({
-    videoUrl: "http://www.youtube.com/watch?v=XjTSpgAm8QM",
-  }),
 
   /*
   these methods are the intended interface for the rest of your app

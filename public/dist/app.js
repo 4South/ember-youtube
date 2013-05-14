@@ -1,34 +1,23 @@
 minispade.register('application/Application.js', function() {
 window.App = Ember.Application.create();
+minispade.require('router/Router.js');
+minispade.require('models/YoutubeModel.js');
 minispade.require('controllers/YoutubeController.js');
 minispade.require('views/YoutubeView.js');
 
 });
 
 minispade.register('controllers/YoutubeController.js', function() {
+
+minispade.require('models/YoutubeModel.js');
+
 /*
-this is a video model.  the youtube controller instance in your app
-should have its content set to one of these
-youtubeview instances will look for data from this object to create the player
+This state manager represents the current state of associated
+videos playing through connected/associated views
+NOTE: this may not represent the viewers actual state
+if the application allows the controller to drive in unison
+otherwise autonomous views
 */
-App.YoutubeVideo = Ember.Object.extend({
-
-  height: 480,
-  width: 640,
-  videoUrl: "",
-  autohide: 1,
-  autoplay: 0,
-  controls: 0,
-  disablekb: 1,
-  enablejsapi: 1,
-  fs: 0,
-  iv_load_policy: 3,
-  modestbranding: 1,
-  rel: 0,
-  showinfo: 0,
-
-});
-
 App.YoutubeStateManager = Ember.StateManager.extend({
 
   initialState: 'noplayer',
@@ -46,6 +35,7 @@ App.YoutubeStateManager = Ember.StateManager.extend({
 
 });
 
+
 App.YoutubeController = Ember.ObjectController.extend({
 
   youtubeReady: false,
@@ -61,9 +51,6 @@ App.YoutubeController = Ember.ObjectController.extend({
   formSeekPosition: 0,
   seekPosition: 0,
 
-  content: App.YoutubeVideo.create({
-    videoUrl: "http://www.youtube.com/watch?v=XjTSpgAm8QM",
-  }),
 
   /*
   these methods are the intended interface for the rest of your app
@@ -167,18 +154,126 @@ App.YoutubeController = Ember.ObjectController.extend({
 
 });
 
+minispade.register('models/YoutubeModel.js', function() {
+/*
+this is a video model.  the youtube controller instance in your app
+should have its content set to one of these
+youtubeview instances will look for data from this object to create the player
+*/
+App.YoutubeModel = Ember.Object.extend({
+
+  height: 480,
+  width: 640,
+  videoUrl: "",
+  autohide: 1,
+  autoplay: 0,
+  controls: 0,
+  disablekb: 1,
+  enablejsapi: 1,
+  fs: 0,
+  iv_load_policy: 3,
+  modestbranding: 1,
+  rel: 0,
+  showinfo: 0,
+
+});
+
+
+});
+
+minispade.register('router/Router.js', function() {
+App.Router.map( function () {
+
+  this.resource('youtube', function () {
+    this.route('ytcontroller', { path: "/ytcontroller" });
+    this.route('ytview', { path: "/ytview" });
+    this.route('ytmodel', { path: "/ytmodel" });
+  });
+
+});
+
+App.IndexRoute = Ember.Route.extend({
+  redirect: function () {
+    this.replaceWith('youtube');
+  },
+});
+
+App.YoutubeRoute = Ember.Route.extend({
+
+  model: function (params) {
+    return App.YoutubeModel.create({
+      videoUrl: "http://www.youtube.com/watch?v=XjTSpgAm8QM",
+    });
+  },  
+  
+  renderTemplate: function (controller, model) {
+    console.log('ytroute rt fired');
+    this.render("youtube", {
+      into: 'application',
+      outlet: 'player',
+      controller: controller
+    });
+
+    this.render("youtube-controls", {
+      into: 'application',
+      outlet: 'footer',
+      controller: 'youtube'
+    });
+  },
+
+});
+
+App.YoutubeYtcontrollerRoute = Ember.Route.extend({
+
+  renderTemplate: function (controller, model) {
+    this.render("source/YoutubeController", {
+      into: 'application',
+      outlet: 'code',
+    }); 
+  },
+
+});
+
+App.YoutubeYtviewRoute = Ember.Route.extend({
+
+  renderTemplate: function (controller, model) {
+    this.render("source/YoutubeView", {
+      into: 'application',
+      outlet: 'code',
+    }); 
+  },
+
+});
+
+App.YoutubeYtmodelRoute = Ember.Route.extend({
+
+  renderTemplate: function (controller, model) {
+    this.render("source/YoutubeModel", {
+      into: 'application',
+      outlet: 'code',
+    }); 
+  },
+
+});
+
+});
+
 minispade.register('views/ApplicationView.js', function() {
 
 });
 
 minispade.register('views/YoutubeView.js', function() {
 /*
-
+This class is responsible for loading the youtubeplayer api
+and spawning an instance of a ytplayer object
+It listens to changes on its controller's attributes to 
+affect the ytplayer object
 */
 App.YoutubeView = Ember.View.extend({
 
   iframeId: "ytplayer",
   targetId: "player",
+  classNames: ['fixedplayer'],
 
   //called before this element is to be inserted into the DOM
   willInsertElement: function () {
@@ -186,6 +281,9 @@ App.YoutubeView = Ember.View.extend({
       , iframe = document.createElement('script')
       , firstScript = document.getElementsByTagName('script')[0];
     
+    console.log('willinsert fired');
+
+
     //async grab the api player code and insert this before all scripts
     iframe.src = "https://www.youtube.com/iframe_api";
     firstScript.parentNode.insertBefore(iframe, firstScript); 
@@ -197,13 +295,30 @@ App.YoutubeView = Ember.View.extend({
     }
   },
 
+  //called when view is being removed
   willDestroyElement: function () {
+    var id = this.get('targetId')
+      , iframe = document.getElementById(id)
+      , placeholder = document.createElement('div');
+    
+    //create a new target for future players to find
+    placeholder.id = id;
+    iframe.parentNode.insertBefore(placeholder, iframe);
+    iframe.remove();
+
+    //nullify the ytplayer instance
     this.set('ytplayer', null);
+    //unbind resize listener event
+    this.get('resizeListener').unbind();
+   
   },
 
   //when we insert the element, we add our YT player object
   createYoutubePlayer: function () {
     var ytController = this.get('controller');
+
+    console.log('createYT fired');
+
 
     //do we have a youtube video model to load?
     if (!ytController.get('model')) { return }
@@ -212,9 +327,22 @@ App.YoutubeView = Ember.View.extend({
       , targetId = this.get('targetId')
       , YT = this.get('YT');
 
+    //calculate height/width for player based on window size
+    var width = $(window).width() * (4/12);
+    var height = width * (480 / 640);
+
+    //set jquery event to handle window resize
+    this.set('resizeListener', $(window).resize(
+      this.responsiveResizePlayer.bind(this))
+    );
+
     this.set('ytplayer', new YT.Player(targetId, {
-        height: model.get('height'),
-        width: model.get('width'),
+
+        height: height,
+        width: width,
+    
+        //height: model.get('height'),
+        //width: model.get('width'),
         videoId: controller.get('videoId'),
         //videoId: model.get('videoId'),
         playerVars: {
@@ -239,11 +367,7 @@ App.YoutubeView = Ember.View.extend({
     );
   },
 
-  destroyYoutubePlayer: function () {
-    this.set('ytplayer', null);
-  },
   
-
   /*
   this handles state-change events emitted by the player
   these are useful to control for the user changing the state
@@ -287,6 +411,20 @@ App.YoutubeView = Ember.View.extend({
     //call the appropriate behavior on the youtube player
     ytplayer[action]();
   }.observes('controller._playerState'),
+
+  
+  //this function responds to window resize
+  responsiveResizePlayer: function () {
+    var ytplayer = this.get('ytplayer')
+      , height
+      , width;
+
+    if (!ytplayer) { return }
+    
+    width = $(window).width() * (4/12);
+    height = width * (480/640);
+    ytplayer.setSize(width, height); 
+  },
 
   dimensionsHaveChanged: function () {
     var ytplayer = this.get('ytplayer')

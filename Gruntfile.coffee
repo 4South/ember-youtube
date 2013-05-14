@@ -1,3 +1,6 @@
+path = require('path')
+hljs = require('highlight.js')
+
 module.exports = (grunt) ->
   
   grunt.initConfig
@@ -30,7 +33,7 @@ module.exports = (grunt) ->
     regarde:
       js:
         files: 'public/js/**/*.js'
-        tasks: ['minispade', 'livereload', 'regarde']
+        tasks: ['minispade', 'doc', 'livereload', 'regarde']
       handlebars:
         files: 'public/handlebars/**/*.handlebars'
         tasks: ['ember_templates', 'livereload', 'regarde']
@@ -38,6 +41,10 @@ module.exports = (grunt) ->
         files: 'public/sass/**/*.sass'
         tasks: ['sass', 'livereload', 'regarde']
         
+    doc:
+      src: [ 'public/js/controllers/YoutubeController.js',
+             'public/js/views/YoutubeView.js',
+             'public/js/models/YoutubeModel.js']
 
   grunt.loadNpmTasks('grunt-contrib-livereload')
   grunt.loadNpmTasks('grunt-contrib-sass')
@@ -45,8 +52,36 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks('grunt-regarde')
   grunt.loadNpmTasks('grunt-minispade')
 
+
+  grunt.registerMultiTask('doc', 'output source files as handlebars files', () ->
+    this.files.forEach( (file)->
+      src = file.src.filter( (filepath) ->
+        if not grunt.file.exists filepath
+          grunt.log.writeln filepath, 'doesnt exist or was not found'
+          return false
+        else
+          grunt.log.writeln filepath, 'was found'
+          return true
+      ).map( ( filepath ) ->
+        return createHandlebars filepath
+      )
+    )
+  )
+
+  createHandlebars = ( filepath ) ->
+    filename = path.basename(filepath).replace('js', 'handlebars')
+    content = grunt.file.read filepath
+    output = "<pre><code>"+
+              hljs.highlight('javascript', content).value+
+              "</code></pre>"
+
+    outputfile = "public/handlebars/source/" + filename
+    grunt.log.writeln(outputfile, 'created')
+    grunt.file.write(outputfile, output)
+
   grunt.registerTask( 'default', [
                       'livereload-start',
+                      'doc',
                       'ember_templates',
                       'minispade',
                       'regarde' ])

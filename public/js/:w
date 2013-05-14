@@ -1,0 +1,12 @@
+body
+  padding-top: 60px
+  background: #e2e2e2
+   
+div.player
+  overflow: none
+  padding-right: 5%
+
+div.code
+  border-left: 1px solid #151515
+  overflow: auto 
+  padding-left: 5%

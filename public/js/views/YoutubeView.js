@@ -1,10 +1,14 @@
 /*
-
+This class is responsible for loading the youtubeplayer api
+and spawning an instance of a ytplayer object
+It listens to changes on its controller's attributes to 
+affect the ytplayer object
 */
 App.YoutubeView = Ember.View.extend({
 
   iframeId: "ytplayer",
   targetId: "player",
+  classNames: ['fixedplayer'],
 
   //called before this element is to be inserted into the DOM
   willInsertElement: function () {
@@ -12,6 +16,9 @@ App.YoutubeView = Ember.View.extend({
       , iframe = document.createElement('script')
       , firstScript = document.getElementsByTagName('script')[0];
     
+    console.log('willinsert fired');
+
+
     //async grab the api player code and insert this before all scripts
     iframe.src = "https://www.youtube.com/iframe_api";
     firstScript.parentNode.insertBefore(iframe, firstScript); 
@@ -23,13 +30,30 @@ App.YoutubeView = Ember.View.extend({
     }
   },
 
+  //called when view is being removed
   willDestroyElement: function () {
+    var id = this.get('targetId')
+      , iframe = document.getElementById(id)
+      , placeholder = document.createElement('div');
+    
+    //create a new target for future players to find
+    placeholder.id = id;
+    iframe.parentNode.insertBefore(placeholder, iframe);
+    iframe.remove();
+
+    //nullify the ytplayer instance
     this.set('ytplayer', null);
+    //unbind resize listener event
+    this.get('resizeListener').unbind();
+   
   },
 
   //when we insert the element, we add our YT player object
   createYoutubePlayer: function () {
     var ytController = this.get('controller');
+
+    console.log('createYT fired');
+
 
     //do we have a youtube video model to load?
     if (!ytController.get('model')) { return }
@@ -38,9 +62,22 @@ App.YoutubeView = Ember.View.extend({
       , targetId = this.get('targetId')
       , YT = this.get('YT');
 
+    //calculate height/width for player based on window size
+    var width = $(window).width() * (4/12);
+    var height = width * (480 / 640);
+
+    //set jquery event to handle window resize
+    this.set('resizeListener', $(window).resize(
+      this.responsiveResizePlayer.bind(this))
+    );
+
     this.set('ytplayer', new YT.Player(targetId, {
-        height: model.get('height'),
-        width: model.get('width'),
+
+        height: height,
+        width: width,
+    
+        //height: model.get('height'),
+        //width: model.get('width'),
         videoId: controller.get('videoId'),
         //videoId: model.get('videoId'),
         playerVars: {
@@ -65,11 +102,7 @@ App.YoutubeView = Ember.View.extend({
     );
   },
 
-  destroyYoutubePlayer: function () {
-    this.set('ytplayer', null);
-  },
   
-
   /*
   this handles state-change events emitted by the player
   these are useful to control for the user changing the state
@@ -113,6 +146,20 @@ App.YoutubeView = Ember.View.extend({
     //call the appropriate behavior on the youtube player
     ytplayer[action]();
   }.observes('controller._playerState'),
+
+  
+  //this function responds to window resize
+  responsiveResizePlayer: function () {
+    var ytplayer = this.get('ytplayer')
+      , height
+      , width;
+
+    if (!ytplayer) { return }
+    
+    width = $(window).width() * (4/12);
+    height = width * (480/640);
+    ytplayer.setSize(width, height); 
+  },
 
   dimensionsHaveChanged: function () {
     var ytplayer = this.get('ytplayer')

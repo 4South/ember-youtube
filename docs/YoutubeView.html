@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>YoutubeView.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>YoutubeView.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="comment">/*
+
+*/</span>
+App.YoutubeView = Ember.View.extend({
+
+  iframeId: <span class="string">"ytplayer"</span>,
+  targetId: <span class="string">"player"</span>,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>called before this element is to be inserted into the DOM</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  willInsertElement: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+    <span class="keyword">var</span> thisView = <span class="keyword">this</span>
+      , iframe = document.createElement(<span class="string">'script'</span>)
+      , firstScript = document.getElementsByTagName(<span class="string">'script'</span>)[<span class="number">0</span>];</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>async grab the api player code and insert this before all scripts</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    iframe.src = <span class="string">"https://www.youtube.com/iframe_api"</span>;
+    firstScript.parentNode.insertBefore(iframe, firstScript);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>alert the controller that the player api is ready</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    window.onYouTubeIframeAPIReady = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+      thisView.set(<span class="string">'YT'</span>, YT);
+      thisView.createYoutubePlayer(); 
+    }
+  },
+
+  willDestroyElement: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+    <span class="keyword">this</span>.set(<span class="string">'ytplayer'</span>, <span class="literal">null</span>);
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>when we insert the element, we add our YT player object</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  createYoutubePlayer: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+    <span class="keyword">var</span> ytController = <span class="keyword">this</span>.get(<span class="string">'controller'</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>do we have a youtube video model to load?</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">if</span> (!ytController.get(<span class="string">'model'</span>)) { <span class="keyword">return</span> }
+    <span class="keyword">var</span> model = ytController.get(<span class="string">'model'</span>)
+      , iframeId = <span class="keyword">this</span>.get(<span class="string">'iframeId'</span>)
+      , targetId = <span class="keyword">this</span>.get(<span class="string">'targetId'</span>)
+      , YT = <span class="keyword">this</span>.get(<span class="string">'YT'</span>);
+
+    <span class="keyword">this</span>.set(<span class="string">'ytplayer'</span>, <span class="keyword">new</span> YT.Player(targetId, {
+        height: model.get(<span class="string">'height'</span>),
+        width: model.get(<span class="string">'width'</span>),
+        videoId: controller.get(<span class="string">'videoId'</span>),</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>videoId: model.get(&#39;videoId&#39;),</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        playerVars: {
+          autohide: model.get(<span class="string">'autohide'</span>),
+          autoplay: model.get(<span class="string">'autoplay'</span>),
+          controls: model.get(<span class="string">'controls'</span>),
+          disablekb: model.get(<span class="string">'disablekb'</span>),
+          enablejsapi: model.get(<span class="string">'enablejsapi'</span>),
+          fs: model.get(<span class="string">'fs'</span>),
+          iv_load_policy: model.get(<span class="string">'iv_load_policy'</span>),
+          modestbranding: model.get(<span class="string">'modestbranding'</span>),
+          playerapiid: iframeId,
+          rel: model.get(<span class="string">'rel'</span>),
+          showinfo: model.get(<span class="string">'showinfo'</span>),
+        },
+        events: {
+          onReady: <span class="keyword">this</span>.sendStateChange.bind(<span class="keyword">this</span>),
+          onStateChange: <span class="keyword">this</span>.sendStateChange.bind(<span class="keyword">this</span>),
+          onError: <span class="keyword">this</span>.handleError.bind(<span class="keyword">this</span>),
+        }
+      })
+    );
+  },
+
+  destroyYoutubePlayer: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+    <span class="keyword">this</span>.set(<span class="string">'ytplayer'</span>, <span class="literal">null</span>);
+  },
+  
+
+  <span class="comment">/*
+  this handles state-change events emitted by the player
+  these are useful to control for the user changing the state
+  of your player directly through the player UI
+  we broadcast to the controller our new state so that the controller
+  may optionally respond
+  */</span>
+  sendStateChange: <span class="function"><span class="keyword">function</span> <span class="params">(event)</span> {</span>
+    <span class="keyword">var</span> state = event.data
+      , ytController = <span class="keyword">this</span>.get(<span class="string">'controller'</span>); 
+
+    ytController._updateState(state);
+  },
+
+  handleError: <span class="keyword">function</span>(event) {
+    <span class="keyword">var</span> ytController = <span class="keyword">this</span>.get(<span class="string">'controller'</span>);
+    alert(<span class="string">'an error occurred with that video'</span>);
+  },
+
+
+  <span class="comment">/*
+  Here we define a ton of observers that react to changes in the controller's
+  model and update the ytplayer object for this view accordingly.
+  */</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>we observe the state of the controller and determine our view&#39;s response
+by default, the view and controller&#39;s state are linked</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  stateHasChanged: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+    <span class="keyword">var</span> actionMapping = {
+      <span class="number">1</span>: <span class="string">'playVideo'</span>,
+      <span class="number">2</span>: <span class="string">'pauseVideo'</span>,
+    } 
+    <span class="keyword">var</span> state = <span class="keyword">this</span>.get(<span class="string">'controller._playerState'</span>),
+      action = actionMapping[state],
+      ytplayer = <span class="keyword">this</span>.get(<span class="string">'ytplayer'</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>sanity checking</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">if</span> (!ytplayer) { <span class="keyword">return</span> }
+    <span class="keyword">if</span> (!action) { <span class="keyword">return</span> }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>call the appropriate behavior on the youtube player</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    ytplayer[action]();
+  }.observes(<span class="string">'controller._playerState'</span>),
+
+  dimensionsHaveChanged: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+    <span class="keyword">var</span> ytplayer = <span class="keyword">this</span>.get(<span class="string">'ytplayer'</span>)
+      controller = <span class="keyword">this</span>.get(<span class="string">'controller'</span>)
+      height = controller.get(<span class="string">'model.height'</span>)
+      width = controller.get(<span class="string">'model.width'</span>);
+    
+    <span class="keyword">if</span> (!ytplayer) { <span class="keyword">return</span> }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>player must be atleast 200x200 and not larger than window</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    width = (width &lt; <span class="number">200</span>) ? <span class="number">200</span> : width;
+    width = (width &gt; window.width) ? window.width : width;
+    height = (height &lt; <span class="number">200</span>) ? <span class="number">200</span> : height;
+    height = (height &gt; window.height) ? window.height : height;
+
+    ytplayer.setSize(width, height);
+  }.observes(<span class="string">'controller.model.height'</span>, <span class="string">'controller.model.width'</span>),
+
+
+  videoHasChanged: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+    <span class="keyword">var</span> ytplayer = <span class="keyword">this</span>.get(<span class="string">'ytplayer'</span>)
+      , videoId = <span class="keyword">this</span>.get(<span class="string">'controller.videoId'</span>);
+
+    <span class="keyword">if</span> (!ytplayer) { <span class="keyword">return</span> }
+
+    <span class="keyword">this</span>.get(<span class="string">'ytplayer'</span>).cueVideoById(videoId);
+  }.observes(<span class="string">'controller.videoId'</span>),</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>for the moment, if these settings change we create a new yt player</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  settingsHaveChanged: <span class="keyword">function</span>() {
+    <span class="keyword">var</span> ytplayer = <span class="keyword">this</span>.get(<span class="string">'ytplayer'</span>);
+    
+    <span class="keyword">if</span> (!ytplayer) { <span class="keyword">return</span> }  
+  
+    <span class="keyword">this</span>.createYoutubePlayer(); 
+  }.observes( <span class="string">'controller.model.autohide'</span>, <span class="string">'controller.model.autoplay'</span>,
+              <span class="string">'controller.model.controls'</span>, <span class="string">'controller.model.disablekb'</span>,
+              <span class="string">'controller.model.enablejsapi'</span>, <span class="string">'controller.model.fs'</span>,
+              <span class="string">'controller.model.iv_load_policy'</span>, 
+              <span class="string">'controller.model.modestbranding'</span>,
+              <span class="string">'controller.model.rel'</span>, <span class="string">'controller.model.showinfo'</span> ),
+
+
+  volumeHasChanged: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+    <span class="keyword">var</span> ytplayer = <span class="keyword">this</span>.get(<span class="string">'ytplayer'</span>)
+      , volume = <span class="keyword">this</span>.get(<span class="string">'controller.volume'</span>);
+
+    <span class="keyword">if</span> (!ytplayer) { <span class="keyword">return</span> }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>volume must be between 0 and 100</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    volume = (volume &lt; <span class="number">0</span>) ? <span class="number">0</span> : volume;
+    volume = (volume &gt; <span class="number">100</span>) ? <span class="number">100</span> : volume;
+  
+    ytplayer.setVolume(volume);
+  }.observes(<span class="string">'controller.volume'</span>),
+
+
+  muteHasChanged: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+    <span class="keyword">var</span> ytplayer = <span class="keyword">this</span>.get(<span class="string">'ytplayer'</span>)
+      , isMuted = <span class="keyword">this</span>.get(<span class="string">'controller.isMuted'</span>);
+
+    <span class="keyword">if</span> (!ytplayer) { <span class="keyword">return</span> }
+
+    <span class="keyword">if</span> (isMuted) { ytplayer.mute() }
+    <span class="keyword">else</span> { ytplayer.unMute() }
+  }.observes(<span class="string">'controller.isMuted'</span>),
+
+  seekPositionHasChanged: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+    <span class="keyword">var</span> ytplayer = <span class="keyword">this</span>.get(<span class="string">'ytplayer'</span>)
+      , seekPosition = <span class="keyword">this</span>.get(<span class="string">'controller.seekPosition'</span>);
+
+    <span class="keyword">if</span> (!ytplayer) { <span class="keyword">return</span> }
+
+    ytplayer.seekTo(seekPosition, <span class="literal">true</span>); 
+  }.observes(<span class="string">'controller.seekPosition'</span>),
+
+});</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

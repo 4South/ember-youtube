@@ -1,7 +1,28 @@
 <div class="container-fluid">
-  {{outlet}}
-  <div class="row">
-    {{render 'youtube'}}
-  </div>
+
+  <header class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <ul class="nav">
+        <li>{{#linkTo "youtube.ytcontroller"}}Controller Code{{/linkTo}}</li>
+        <li>{{#linkTo "youtube.ytview"}}View Code{{/linkTo}}</li>
+        <li>{{#linkTo "youtube.ytmodel"}}Model Code{{/linkTo}}</li>
+      </ul>
+      {{outlet header}}
+    </div>
+  </header>
+
+  <section class="row-fluid middle">
+    <div class="span4 player">
+      {{outlet player}}
+    </div>
+    <div class="span8 code">
+      {{outlet code}}
+    </div>
+
+  <footer class="navbar navbar-fixed-bottom">
+    <div class="navbar-inner">
+      {{outlet footer}}
+    </div>
+  </footer>
+
 </div>
-{{partial footer}}
