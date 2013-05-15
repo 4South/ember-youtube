@@ -54,7 +54,7 @@ App.YoutubeRoute = Ember.Route.extend({
 App.YoutubeYtcontrollerRoute = Ember.Route.extend({
 
   renderTemplate: function (controller, model) {
-    this.render("source/YoutubeController", {
+    this.render("source/controllers/YoutubeController", {
       into: 'application',
       outlet: 'code',
     }); 
@@ -65,7 +65,7 @@ App.YoutubeYtcontrollerRoute = Ember.Route.extend({
 App.YoutubeYtviewRoute = Ember.Route.extend({
 
   renderTemplate: function (controller, model) {
-    this.render("source/YoutubeView", {
+    this.render("source/views/YoutubeView", {
       into: 'application',
       outlet: 'code',
     }); 
@@ -76,7 +76,7 @@ App.YoutubeYtviewRoute = Ember.Route.extend({
 App.YoutubeYtmodelRoute = Ember.Route.extend({
 
   renderTemplate: function (controller, model) {
-    this.render("source/YoutubeModel", {
+    this.render("source/models/YoutubeModel", {
       into: 'application',
       outlet: 'code',
     }); 
@@ -87,7 +87,7 @@ App.YoutubeYtmodelRoute = Ember.Route.extend({
 App.YoutubeYtrouterRoute = Ember.Route.extend({
 
   renderTemplate: function (controller, model) {
-    this.render("source/Router", {
+    this.render("source/router/Router", {
       into: 'application',
       outlet: 'code',
     }); 
@@ -98,7 +98,7 @@ App.YoutubeYtrouterRoute = Ember.Route.extend({
 App.YoutubeYtappRoute = Ember.Route.extend({
 
   renderTemplate: function (controller, model) {
-    this.render("source/Application", {
+    this.render("source/application/Application", {
       into: 'application',
       outlet: 'code',
     }); 

@@ -1,5 +1,5 @@
 path = require('path')
-hljs = require('highlight.js')
+#hljs = require('highlight.js')
 
 module.exports = (grunt) ->
   
@@ -33,7 +33,7 @@ module.exports = (grunt) ->
     regarde:
       js:
         files: 'public/js/**/*.js'
-        tasks: ['minispade', 'doc', 'livereload', 'regarde']
+        tasks: ['minispade', 'showoff', 'livereload', 'regarde']
       handlebars:
         files: 'public/handlebars/**/*.handlebars'
         tasks: ['ember_templates', 'livereload', 'regarde']
@@ -41,49 +41,27 @@ module.exports = (grunt) ->
         files: 'public/sass/**/*.sass'
         tasks: ['sass', 'livereload', 'regarde']
         
-    doc:
-      src: [ 'public/js/controllers/YoutubeController.js',
-             'public/js/views/YoutubeView.js',
-             'public/js/models/YoutubeModel.js',
-             'public/js/router/Router.js',
-             'public/js/application/Application.js']
+    showoff:
+      options:
+        lang: 'javascript'
+      glob_to_multiple:
+        expand: true
+        cwd: 'public/js'
+        src: ['**/*.js']
+        dest: 'public/handlebars/source'
+        ext: '.handlebars'
+
 
   grunt.loadNpmTasks('grunt-contrib-livereload')
   grunt.loadNpmTasks('grunt-contrib-sass')
   grunt.loadNpmTasks('grunt-ember-templates')
   grunt.loadNpmTasks('grunt-regarde')
   grunt.loadNpmTasks('grunt-minispade')
-
-
-  grunt.registerMultiTask('doc', 'output source files as handlebars files', () ->
-    this.files.forEach( (file)->
-      src = file.src.filter( (filepath) ->
-        if not grunt.file.exists filepath
-          grunt.log.writeln filepath, 'doesnt exist or was not found'
-          return false
-        else
-          grunt.log.writeln filepath, 'was found'
-          return true
-      ).map( ( filepath ) ->
-        return createHandlebars filepath
-      )
-    )
-  )
-
-  createHandlebars = ( filepath ) ->
-    filename = path.basename(filepath).replace('js', 'handlebars')
-    content = grunt.file.read filepath
-    output = "<pre><code>"+
-              hljs.highlight('javascript', content).value+
-              "</code></pre>"
-
-    outputfile = "public/handlebars/source/" + filename
-    grunt.log.writeln(outputfile, 'created')
-    grunt.file.write(outputfile, output)
+  grunt.loadNpmTasks('grunt-showoff')
 
   grunt.registerTask( 'default', [
                       'livereload-start',
-                      'doc',
+                      'showoff',
                       'ember_templates',
                       'minispade',
                       'regarde' ])

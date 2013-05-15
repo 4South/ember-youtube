@@ -90,7 +90,7 @@ function program11(depth0,data) {
   
 });
 
-Ember.TEMPLATES["source/Application"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+Ember.TEMPLATES["source/application/Application"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
 this.compilerInfo = [2,'>= 1.0.0-rc.3'];
 helpers = helpers || Ember.Handlebars.helpers; data = data || {};
   
@@ -100,17 +100,7 @@ helpers = helpers || Ember.Handlebars.helpers; data = data || {};
   
 });
 
-Ember.TEMPLATES["source/Router"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
-this.compilerInfo = [2,'>= 1.0.0-rc.3'];
-helpers = helpers || Ember.Handlebars.helpers; data = data || {};
-  
-
-
-  data.buffer.push("<pre><code>App.Router.map( <span class=\"function\"><span class=\"keyword\">function</span> <span class=\"params\">()</span> {</span>\n\n  <span class=\"keyword\">this</span>.resource(<span class=\"string\">'youtube'</span>, <span class=\"function\"><span class=\"keyword\">function</span> <span class=\"params\">()</span> {</span>\n    <span class=\"keyword\">this</span>.route(<span class=\"string\">'ytcontroller'</span>, { path: <span class=\"string\">\"/ytcontroller\"</span> });\n    <span class=\"keyword\">this</span>.route(<span class=\"string\">'ytview'</span>, { path: <span class=\"string\">\"/ytview\"</span> });\n    <span class=\"keyword\">this</span>.route(<span class=\"string\">'ytmodel'</span>, { path: <span class=\"string\">\"/ytmodel\"</span> });\n    <span class=\"keyword\">this</span>.route(<span class=\"string\">'ytrouter'</span>, { path: <span class=\"string\">\"/ytrouter\"</span> });\n    <span class=\"keyword\">this</span>.route(<span class=\"string\">'ytapp'</span>, { path: <span class=\"string\">\"/ytapp\"</span> });\n  });\n\n});\n\nApp.IndexRoute = Ember.Route.extend({\n  redirect: <span class=\"function\"><span class=\"keyword\">function</span> <span class=\"params\">()</span> {</span>\n    <span class=\"keyword\">this</span>.replaceWith(<span class=\"string\">'youtube'</span>);\n  },\n});\n\nApp.YoutubeIndexRoute = Ember.Route.extend({\n\n  renderTemplate: <span class=\"function\"><span class=\"keyword\">function</span> <span class=\"params\">(controller, model)</span> {</span>\n    <span class=\"keyword\">this</span>.render(<span class=\"string\">\"youtube-index\"</span>, {\n      into: <span class=\"string\">'application'</span>,\n      outlet: <span class=\"string\">'code'</span>,\n    });\n  },\n\n});\n\nApp.YoutubeRoute = Ember.Route.extend({\n\n  model: <span class=\"function\"><span class=\"keyword\">function</span> <span class=\"params\">(params)</span> {</span>\n    <span class=\"keyword\">return</span> App.YoutubeModel.create({\n      videoUrl: <span class=\"string\">\"http://www.youtube.com/watch?v=XjTSpgAm8QM\"</span>,\n    });\n  },  \n  \n  renderTemplate: <span class=\"function\"><span class=\"keyword\">function</span> <span class=\"params\">(controller, model)</span> {</span>\n    <span class=\"keyword\">this</span>.render(<span class=\"string\">\"youtube\"</span>, {\n      into: <span class=\"string\">'application'</span>,\n      outlet: <span class=\"string\">'player'</span>,\n      controller: controller\n    });\n\n    <span class=\"keyword\">this</span>.render(<span class=\"string\">\"youtube-controls\"</span>, {\n      into: <span class=\"string\">'application'</span>,\n      outlet: <span class=\"string\">'footer'</span>,\n      controller: <span class=\"string\">'youtube'</span>\n    });\n  },\n\n});\n\nApp.YoutubeYtcontrollerRoute = Ember.Route.extend({\n\n  renderTemplate: <span class=\"function\"><span class=\"keyword\">function</span> <span class=\"params\">(controller, model)</span> {</span>\n    <span class=\"keyword\">this</span>.render(<span class=\"string\">\"source/YoutubeController\"</span>, {\n      into: <span class=\"string\">'application'</span>,\n      outlet: <span class=\"string\">'code'</span>,\n    }); \n  },\n\n});\n\nApp.YoutubeYtviewRoute = Ember.Route.extend({\n\n  renderTemplate: <span class=\"function\"><span class=\"keyword\">function</span> <span class=\"params\">(controller, model)</span> {</span>\n    <span class=\"keyword\">this</span>.render(<span class=\"string\">\"source/YoutubeView\"</span>, {\n      into: <span class=\"string\">'application'</span>,\n      outlet: <span class=\"string\">'code'</span>,\n    }); \n  },\n\n});\n\nApp.YoutubeYtmodelRoute = Ember.Route.extend({\n\n  renderTemplate: <span class=\"function\"><span class=\"keyword\">function</span> <span class=\"params\">(controller, model)</span> {</span>\n    <span class=\"keyword\">this</span>.render(<span class=\"string\">\"source/YoutubeModel\"</span>, {\n      into: <span class=\"string\">'application'</span>,\n      outlet: <span class=\"string\">'code'</span>,\n    }); \n  },\n\n});\n\nApp.YoutubeYtrouterRoute = Ember.Route.extend({\n\n  renderTemplate: <span class=\"function\"><span class=\"keyword\">function</span> <span class=\"params\">(controller, model)</span> {</span>\n    <span class=\"keyword\">this</span>.render(<span class=\"string\">\"source/Router\"</span>, {\n      into: <span class=\"string\">'application'</span>,\n      outlet: <span class=\"string\">'code'</span>,\n    }); \n  },\n\n});\n\nApp.YoutubeYtappRoute = Ember.Route.extend({\n\n  renderTemplate: <span class=\"function\"><span class=\"keyword\">function</span> <span class=\"params\">(controller, model)</span> {</span>\n    <span class=\"keyword\">this</span>.render(<span class=\"string\">\"source/Application\"</span>, {\n      into: <span class=\"string\">'application'</span>,\n      outlet: <span class=\"string\">'code'</span>,\n    }); \n  },\n\n});\n</code></pre>");
-  
-});
-
-Ember.TEMPLATES["source/YoutubeController"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+Ember.TEMPLATES["source/controllers/YoutubeController"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
 this.compilerInfo = [2,'>= 1.0.0-rc.3'];
 helpers = helpers || Ember.Handlebars.helpers; data = data || {};
   
@@ -120,7 +110,7 @@ helpers = helpers || Ember.Handlebars.helpers; data = data || {};
   
 });
 
-Ember.TEMPLATES["source/YoutubeModel"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+Ember.TEMPLATES["source/models/YoutubeModel"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
 this.compilerInfo = [2,'>= 1.0.0-rc.3'];
 helpers = helpers || Ember.Handlebars.helpers; data = data || {};
   
@@ -130,7 +120,27 @@ helpers = helpers || Ember.Handlebars.helpers; data = data || {};
   
 });
 
-Ember.TEMPLATES["source/YoutubeView"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+Ember.TEMPLATES["source/router/Router"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+this.compilerInfo = [2,'>= 1.0.0-rc.3'];
+helpers = helpers || Ember.Handlebars.helpers; data = data || {};
+  
+
+
+  data.buffer.push("<pre><code>App.Router.map( <span class=\"function\"><span class=\"keyword\">function</span> <span class=\"params\">()</span> {</span>\n\n  <span class=\"keyword\">this</span>.resource(<span class=\"string\">'youtube'</span>, <span class=\"function\"><span class=\"keyword\">function</span> <span class=\"params\">()</span> {</span>\n    <span class=\"keyword\">this</span>.route(<span class=\"string\">'ytcontroller'</span>, { path: <span class=\"string\">\"/ytcontroller\"</span> });\n    <span class=\"keyword\">this</span>.route(<span class=\"string\">'ytview'</span>, { path: <span class=\"string\">\"/ytview\"</span> });\n    <span class=\"keyword\">this</span>.route(<span class=\"string\">'ytmodel'</span>, { path: <span class=\"string\">\"/ytmodel\"</span> });\n    <span class=\"keyword\">this</span>.route(<span class=\"string\">'ytrouter'</span>, { path: <span class=\"string\">\"/ytrouter\"</span> });\n    <span class=\"keyword\">this</span>.route(<span class=\"string\">'ytapp'</span>, { path: <span class=\"string\">\"/ytapp\"</span> });\n  });\n\n});\n\nApp.IndexRoute = Ember.Route.extend({\n  redirect: <span class=\"function\"><span class=\"keyword\">function</span> <span class=\"params\">()</span> {</span>\n    <span class=\"keyword\">this</span>.replaceWith(<span class=\"string\">'youtube'</span>);\n  },\n});\n\nApp.YoutubeIndexRoute = Ember.Route.extend({\n\n  renderTemplate: <span class=\"function\"><span class=\"keyword\">function</span> <span class=\"params\">(controller, model)</span> {</span>\n    <span class=\"keyword\">this</span>.render(<span class=\"string\">\"youtube-index\"</span>, {\n      into: <span class=\"string\">'application'</span>,\n      outlet: <span class=\"string\">'code'</span>,\n    });\n  },\n\n});\n\nApp.YoutubeRoute = Ember.Route.extend({\n\n  model: <span class=\"function\"><span class=\"keyword\">function</span> <span class=\"params\">(params)</span> {</span>\n    <span class=\"keyword\">return</span> App.YoutubeModel.create({\n      videoUrl: <span class=\"string\">\"http://www.youtube.com/watch?v=XjTSpgAm8QM\"</span>,\n    });\n  },  \n  \n  renderTemplate: <span class=\"function\"><span class=\"keyword\">function</span> <span class=\"params\">(controller, model)</span> {</span>\n    <span class=\"keyword\">this</span>.render(<span class=\"string\">\"youtube\"</span>, {\n      into: <span class=\"string\">'application'</span>,\n      outlet: <span class=\"string\">'player'</span>,\n      controller: controller\n    });\n\n    <span class=\"keyword\">this</span>.render(<span class=\"string\">\"youtube-controls\"</span>, {\n      into: <span class=\"string\">'application'</span>,\n      outlet: <span class=\"string\">'footer'</span>,\n      controller: <span class=\"string\">'youtube'</span>\n    });\n  },\n\n});\n\nApp.YoutubeYtcontrollerRoute = Ember.Route.extend({\n\n  renderTemplate: <span class=\"function\"><span class=\"keyword\">function</span> <span class=\"params\">(controller, model)</span> {</span>\n    <span class=\"keyword\">this</span>.render(<span class=\"string\">\"source/controllers/YoutubeController\"</span>, {\n      into: <span class=\"string\">'application'</span>,\n      outlet: <span class=\"string\">'code'</span>,\n    }); \n  },\n\n});\n\nApp.YoutubeYtviewRoute = Ember.Route.extend({\n\n  renderTemplate: <span class=\"function\"><span class=\"keyword\">function</span> <span class=\"params\">(controller, model)</span> {</span>\n    <span class=\"keyword\">this</span>.render(<span class=\"string\">\"source/views/YoutubeView\"</span>, {\n      into: <span class=\"string\">'application'</span>,\n      outlet: <span class=\"string\">'code'</span>,\n    }); \n  },\n\n});\n\nApp.YoutubeYtmodelRoute = Ember.Route.extend({\n\n  renderTemplate: <span class=\"function\"><span class=\"keyword\">function</span> <span class=\"params\">(controller, model)</span> {</span>\n    <span class=\"keyword\">this</span>.render(<span class=\"string\">\"source/models/YoutubeModel\"</span>, {\n      into: <span class=\"string\">'application'</span>,\n      outlet: <span class=\"string\">'code'</span>,\n    }); \n  },\n\n});\n\nApp.YoutubeYtrouterRoute = Ember.Route.extend({\n\n  renderTemplate: <span class=\"function\"><span class=\"keyword\">function</span> <span class=\"params\">(controller, model)</span> {</span>\n    <span class=\"keyword\">this</span>.render(<span class=\"string\">\"source/router/Router\"</span>, {\n      into: <span class=\"string\">'application'</span>,\n      outlet: <span class=\"string\">'code'</span>,\n    }); \n  },\n\n});\n\nApp.YoutubeYtappRoute = Ember.Route.extend({\n\n  renderTemplate: <span class=\"function\"><span class=\"keyword\">function</span> <span class=\"params\">(controller, model)</span> {</span>\n    <span class=\"keyword\">this</span>.render(<span class=\"string\">\"source/application/Application\"</span>, {\n      into: <span class=\"string\">'application'</span>,\n      outlet: <span class=\"string\">'code'</span>,\n    }); \n  },\n\n});\n</code></pre>");
+  
+});
+
+Ember.TEMPLATES["source/views/ApplicationView"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+this.compilerInfo = [2,'>= 1.0.0-rc.3'];
+helpers = helpers || Ember.Handlebars.helpers; data = data || {};
+  
+
+
+  data.buffer.push("<pre><code></code></pre>");
+  
+});
+
+Ember.TEMPLATES["source/views/YoutubeView"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
 this.compilerInfo = [2,'>= 1.0.0-rc.3'];
 helpers = helpers || Ember.Handlebars.helpers; data = data || {};
   
